@@ -2,21 +2,35 @@ export default function Footer() {
     const currentYear = new Date().getFullYear()
 
     return (
-        <footer className="bg-gray-900 border-t border-gray-800 text-gray-400">
-            <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col md:flex row justify-between items-center gap-4"></div>
+        <footer className="bg-green-900 border-t border-green-800 text-white">
+            <div className="max-w-7l mx-auto px-6 py-8">
 
-            {/* Contact Info */}
+        {/* Contact Info */}
             <div className="text-sm text-center md:text-left">
-                <p>AuburnCommunityAirsoft@gmail.com</p>
-                <p>Phone: <span className="text-gray-300">(206) 123-4567</span></p>
+                <div className="text-lg text-left">
+                <p>CONTACT US</p>
+                </div>
+                <p>Email: {" "} 
+                <a 
+                href="mailto:AuburnCommunityAirsoft@gmail.com" 
+                className="hover:underline"
+                >
+                AuburnCommunityAirsoft@gmail.com
+                </a>
+                </p>
+                <p>Phone: <span className="text-white-400">Owner Overlord - (206) 123-4567</span></p>
+                <p>Private Invite Only & RSVP Only</p>
             </div>
 
          {/* Copyright */}
-         <div className="text-sm text-center md:text-right">
+         <div className="text-sm text-center">
             <p>
                 © {currentYear} Auburn Airsoft Community Field
             </p>
-         </div>
+            < p className="text-xs text-white-500">
+            All rights Reserved.</p>
+             </div>
+            </div>
         </footer>
     )
 }
