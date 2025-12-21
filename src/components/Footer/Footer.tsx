@@ -8,7 +8,7 @@ export default function Footer() {
         {/* Contact Info */}
             <div className="text-sm text-center md:text-left">
                 <div className="text-lg text-left">
-                <p>CONTACT US</p>
+                <p className="text-lg font-semibold mb-2">CONTACT US</p>
                 </div>
                 <p>Email: {" "} 
                 <a 
