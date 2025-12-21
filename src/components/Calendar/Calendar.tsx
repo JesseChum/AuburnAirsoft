@@ -2,11 +2,13 @@ import { events } from "../../lib/events"
 import CalendarEvent from "./CalendarEvent"
 
 export default function Calendar() {
+    const year = 2026
+    const month = 1
   return (
     <div className="grid grid-cols-7 gap-4">
       {Array.from({ length: 31 }).map((_, index) => {
         const day = index + 1
-        const dayString = `2025-03-${String(day).padStart(2, "0")}`
+        const dayString = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`
 
         const dayEvents = events.filter(
           (event) => event.date === dayString

@@ -11,7 +11,7 @@ export const events: Event[] =[
     {
         id: "1",
         title: "First Game - Saturday",
-        date: "1/3/26",
+        date: "2026-01-03",
         startTime: "10:00 AM",
         endTime: "3:00 PM",
         maxPlayers: 30,
@@ -19,7 +19,7 @@ export const events: Event[] =[
     {
         id: "2",
         title: "Second Game - Saturday",
-        date: "1/17/26",
+        date: "2026-01-17",
         startTime: "10:00 AM",
         endTime: "3:00 PM",
         maxPlayers: 30,
