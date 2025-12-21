@@ -66,6 +66,19 @@ export default function Navbar() {
           >
             Waiver
           </NavLink>
+
+           <NavLink
+            to="/Events"
+            className={({ isActive }) =>
+              `text-sm font-medium transition ${
+                isActive
+                  ? "text-green-400"
+                  : "text-gray-300 hover:text-green-400"
+              }`
+            }
+          >
+            Events
+          </NavLink>
         </div>
       </div>
     </nav>
