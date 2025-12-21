@@ -1,4 +1,5 @@
 import airsoftImage from "../../assets/image0.jpeg"
+import { Link } from "react-router-dom"
 
 export default function Home() {
   return (
@@ -19,13 +20,15 @@ export default function Home() {
     </p>
 
     <div className="flex flex-wrap gap-4">
-      <button className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-md transition">
+      <Link
+      to="/events" className="bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-md transition">
         View Calendar
-      </button>
+      </Link>
 
-        <button className="border border-white hover:bg-white hover:text-black px-6 py-3 rounded-md transition">
+        <Link
+        to="/rules" className="border border-white hover:bg-white hover:text-black px-6 py-3 rounded-md transition">
         Read the Rules
-       </button>
+       </Link>
      </div>
     </div>
   </section>
