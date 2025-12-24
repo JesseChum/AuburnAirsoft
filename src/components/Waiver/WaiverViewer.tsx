@@ -40,7 +40,7 @@ export default function WaiverViewer(){
                 </label>
 
                 <button
-                    disabled={!accepted || name}
+                    disabled={!(accepted || name)}
                     className={`px-6 py-3 rounded font-semibold transition ${ accepted && name
                         ? "bg-green-500 hover:bg-green-600 text-black"
                         : "bg-gray-600 cursor-not-allowed"
