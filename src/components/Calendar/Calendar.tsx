@@ -1,17 +1,18 @@
-import { events } from "../../lib/events"
-import CalendarEvent from "./CalendarEvent"
+import type { Event } from "../../lib/events"
 
-export default function Calendar() {
-    const year = 2026
-    const month = 1
+type CalendarProps = {
+  events: Event[]
+}
+
+export default function Calendar({ events }: CalendarProps) {
   return (
     <div className="grid grid-cols-7 gap-4">
       {Array.from({ length: 31 }).map((_, index) => {
         const day = index + 1
-        const dayString = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`
 
         const dayEvents = events.filter(
-          (event) => event.date === dayString
+          event =>
+            new Date(event.date).getDate() === day
         )
 
         return (
@@ -22,8 +23,10 @@ export default function Calendar() {
             <p className="text-xs text-green-300 mb-2">{day}</p>
 
             <div className="space-y-2">
-              {dayEvents.map((event) => (
-                <CalendarEvent key={event.id} event={event} />
+              {dayEvents.map(event => (
+                <p key={event.id} className="text-xs">
+                  {event.title}
+                </p>
               ))}
             </div>
           </div>
