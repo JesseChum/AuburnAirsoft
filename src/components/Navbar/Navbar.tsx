@@ -7,7 +7,7 @@ export default function Navbar() {
         
         {/* Logo / Brand */}
         <Link
-          to="/"
+          to="/home"
           className="text-xl font-bold text-white tracking-wide"
         >
           Auburn Airsoft Community Field
@@ -68,7 +68,7 @@ export default function Navbar() {
           </NavLink>
 
            <NavLink
-            to="/Events"
+            to="/events"
             className={({ isActive }) =>
               `text-sm font-medium transition ${
                 isActive
