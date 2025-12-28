@@ -27,6 +27,15 @@ export default function WaiverViewer(){
                     onChange={(e) => setName(e.target.value)}
                     className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white"/>
                 </div>
+                 <div>
+                    <label className="block text-sm mb-1">
+                        Date of Birth
+                    </label>
+                    <input type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white"/>
+                </div>
 
                 <label className="flex items-center space-x-2 text-small">
                     <input

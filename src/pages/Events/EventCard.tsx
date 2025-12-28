@@ -16,8 +16,6 @@ export default function EventCard({ event }: Props) {
   const [headcount, setHeadcount] = useState(0)
   const [loading, setLoading] = useState(true)
 
-  const maxGuests = 5
-
   // ----------------------------
   // Fetch RSVP data
   // ----------------------------
@@ -51,7 +49,6 @@ export default function EventCard({ event }: Props) {
       if (cancelled) return
 
       setHeadcount(total)
-
       if (myRsvp) {
         setAttending(true)
         setGuests(myRsvp.guests - 1)
@@ -103,25 +100,23 @@ export default function EventCard({ event }: Props) {
       setHeadcount((prev) => Math.max(0, prev - seatsRemoved))
       setAttending(false)
       setGuests(0)
-
-      await loadData()
   }
 
-  const updateGuests = async (newGuests: number) => {
-    const diff = newGuests - guests
+  // const updateGuests = async (newGuests: number) => {
+  //   const diff = newGuests - guests
 
-    const { error } = await supabase
-      .from("rsvps")
-      .update({ guests: 1 + newGuests })
-      .eq("event_id", event.id)
-      .eq("user_id", userId)
+  //   const { error } = await supabase
+  //     .from("rsvps")
+  //     .update({ guests: 1 + newGuests })
+  //     .eq("event_id", event.id)
+  //     .eq("user_id", userId)
 
-    if (error) return 
-    setGuests(newGuests)
-    setHeadcount((prev) => prev + diff)
+  //   if (error) return 
+  //   setGuests(newGuests)
+  //   setHeadcount((prev) => prev + diff)
 
-    await loadData()
-  }
+  //   await loadData()
+  // }
 
   // ----------------------------
   // UI
@@ -212,22 +207,7 @@ export default function EventCard({ event }: Props) {
       {attending && (
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm">
-            <span>Guests:</span>
-            <input
-              type="number"
-              min={0}
-              max={maxGuests}
-              value={guests}
-              onChange={(e) =>
-                updateGuests(
-                  Math.max(
-                    0,
-                    Math.min(maxGuests, Number(e.target.value))
-                  )
-                )
-              }
-              className="w-16 bg-zinc-900 border border-zinc-700 rounded px-2 py-1"
-            />
+            
           </div>
 
           <button
