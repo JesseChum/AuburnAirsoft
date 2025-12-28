@@ -1,4 +1,4 @@
-import type { Event } from "../../lib/events"
+import type { Event } from "../../types/Event"
 
 export default function CalendarEvent({ event }: {event: Event }) {
     return (
