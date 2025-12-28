@@ -18,7 +18,7 @@ export default function Footer() {
                 AuburnCommunityAirsoft@gmail.com
                 </a>
                 </p>
-                <p>Phone: <span className="text-white-400">Owner Overlord - (206) 123-4567</span></p>
+                <p>Phone: <span className="text-white-400">Owner Overlord - (206) 474-9088</span></p>
                 <p>Private Invite Only & RSVP Only</p>
             </div>
 
