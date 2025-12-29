@@ -61,7 +61,6 @@ export default function Events() {
 
         {/* Calendar */}
         <section>
-          <h1 className="text-3xl font-bold mb-6">Event Calendar</h1>
           <Calendar events={events} />
         </section>
 
