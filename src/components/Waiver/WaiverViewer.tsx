@@ -12,7 +12,7 @@ export default function WaiverViewer() {
   const [parentName, setParentName] = useState("")
   const [parentAccepted, setParentAccepted] = useState(false)
 
-  // --- Helpers ---
+  // ---- Helpers ----
   function isMinor(dob: string) {
     if (!dob) return false
 
@@ -39,7 +39,7 @@ export default function WaiverViewer() {
     emergencyPhone &&
     (!minor || (parentName && parentAccepted))
 
-  // --- Submit handler ---
+  // ---- Submit handler ----
   async function submitWaiver() {
     try {
       const response = await fetch("/api/generate-waiver", {
@@ -58,7 +58,8 @@ export default function WaiverViewer() {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to submit waiver")
+        alert("Failed to submit waiver")
+        return
       }
 
       const blob = await response.blob()
@@ -72,6 +73,8 @@ export default function WaiverViewer() {
       a.remove()
 
       window.URL.revokeObjectURL(url)
+
+      alert("Waiver submitted successfully")
     } catch (err) {
       console.error(err)
       alert("There was an error submitting the waiver.")
@@ -131,7 +134,6 @@ export default function WaiverViewer() {
           />
         </div>
 
-        {/* Parent / Guardian Section */}
         {minor && (
           <div className="border-t border-gray-700 pt-6 space-y-4">
             <h3 className="text-lg font-bold text-green-400">
@@ -157,14 +159,12 @@ export default function WaiverViewer() {
                 onChange={(e) => setParentAccepted(e.target.checked)}
               />
               <span>
-                I am the parent or legal guardian of the participant above and
-                consent to their participation.
+                I am the parent or legal guardian and consent to participation.
               </span>
             </label>
           </div>
         )}
 
-        {/* Signature acknowledgement */}
         <label className="flex items-start space-x-2 text-sm">
           <input
             type="checkbox"
@@ -172,8 +172,7 @@ export default function WaiverViewer() {
             onChange={(e) => setAccepted(e.target.checked)}
           />
           <span>
-            I acknowledge that typing my name constitutes an electronic
-            signature, and I agree to the terms of the waiver above.
+            Typing my name constitutes an electronic signature and agreement.
           </span>
         </label>
 
