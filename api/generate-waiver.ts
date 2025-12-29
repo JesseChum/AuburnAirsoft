@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
+import { PDFDocument, StandardFonts } from "pdf-lib"
 
 export default async function handler(
   req: VercelRequest,
@@ -14,22 +15,55 @@ export default async function handler(
     emergencyName,
     emergencyPhone,
     parentName,
-    signedAt,
   } = req.body
 
   if (!name || !dob || !emergencyName || !emergencyPhone) {
     return res.status(400).json({ error: "Missing required fields" })
   }
 
-  // For now: just store data (later → PDF or DB)
-  console.log("Waiver submitted:", {
-    name,
-    dob,
-    emergencyName,
-    emergencyPhone,
-    parentName,
-    signedAt,
-  })
+  // Create PDF
+  const pdfDoc = await PDFDocument.create()
+  const page = pdfDoc.addPage([612, 792])
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
 
-  return res.status(200).json({ success: true })
+  const { height } = page.getSize()
+  let y = height - 50
+
+  const draw = (text: string) => {
+    page.drawText(text, {
+      x: 50,
+      y,
+      size: 12,
+      font,
+    })
+    y -= 20
+  }
+
+  draw("AUBURN AIRSOFT COMMUNITY FIELD")
+  draw("")
+  draw(`Participant Name: ${name}`)
+  draw(`Date of Birth: ${dob}`)
+  draw(`Emergency Contact: ${emergencyName}`)
+  draw(`Emergency Phone: ${emergencyPhone}`)
+
+  if (parentName) {
+    draw("")
+    draw(`Parent / Guardian Name: ${parentName}`)
+  }
+
+  draw("")
+  draw(`Signed On: ${new Date().toLocaleDateString()}`)
+  draw("")
+  draw("I acknowledge and agree to the terms of the waiver.")
+
+  const pdfBytes = await pdfDoc.save()
+
+  // IMPORTANT HEADERS
+  res.setHeader("Content-Type", "application/pdf")
+  res.setHeader(
+    "Content-Disposition",
+    'attachment; filename="Auburn-Airsoft-Waiver.pdf"'
+  )
+
+  return res.send(Buffer.from(pdfBytes))
 }
