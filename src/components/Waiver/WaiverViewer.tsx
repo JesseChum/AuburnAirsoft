@@ -4,6 +4,9 @@ import {useState} from "react"
 export default function WaiverViewer(){
     const [accepted, setAccepted] = useState(false)
     const [name, setName] = useState("")
+    const [dob, setDob] = useState("")
+
+    const canSubmit = accepted && name && dob
 
     return(
         <div className="space-y-6">
@@ -19,25 +22,21 @@ export default function WaiverViewer(){
             {/* Agreement Section */}
             <div className="bg-gray-800 p-6 rounded-lg space-y-4">
                 <div>
-                    <label className="block text-sm mb-1">
-                        Full Legal Name
-                    </label>
+                    <label className="block text-sm mb-1">Full Legal Name</label>
                     <input type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white"/>
                 </div>
                  <div>
-                    <label className="block text-sm mb-1">
-                        Date of Birth
-                    </label>
-                    <input type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    <label className="block text-sm mb-1">Date of Birth</label>
+                    <input type="date"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
                     className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white"/>
                 </div>
 
-                <label className="flex items-center space-x-2 text-small">
+                <label className="flex items-center space-x-2 text-sm">
                     <input
                         type="checkbox"
                         checked={accepted}
@@ -49,8 +48,8 @@ export default function WaiverViewer(){
                 </label>
 
                 <button
-                    disabled={!(accepted || name)}
-                    className={`px-6 py-3 rounded font-semibold transition ${ accepted && name
+                    disabled={!canSubmit}
+                    className={`px-6 py-3 rounded font-semibold transition ${ canSubmit
                         ? "bg-green-500 hover:bg-green-600 text-black"
                         : "bg-gray-600 cursor-not-allowed"
                     }`}
