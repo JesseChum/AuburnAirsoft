@@ -1,3 +1,8 @@
+import hazelwood from "../../assets/hazelwood304th.png"
+import ave from "../../assets/118thave.png"
+import gravel from "../../assets/gravelroad.png"
+import parking from "../../assets/parking.png"
+
 export default function Field() {
   return (
     <main className="bg-zinc-900 text-white px-6 py-12">
@@ -81,6 +86,52 @@ export default function Field() {
         </p>
       </section>
 
+    {/* FIELD PHOTOS */}
+    <section className="mb-12">
+        <h2 className="text-xl font-semibold mb-4">Parking & Entrance Reference Photos</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <figure>
+      <img
+        src={hazelwood}
+        alt="Turn from SE 304th St onto 118th Ave SE"
+        className="rounded-lg border border-gray-600"
+      />
+      <figcaption className="text-sm text-gray-400 mt-2">
+        Turn onto 118th Ave SE from SE 304th St
+      </figcaption>
+    </figure>
+    <figure>
+      <img
+        src={ave}
+        alt="Driving down 118th Ave SE"
+        className="rounded-lg border border-gray-600"
+      />
+      <figcaption className="text-sm text-gray-400 mt-2">
+        Continue down 118th Ave SE
+      </figcaption>
+    </figure>
+     <figure>
+      <img
+        src={gravel}
+        alt="Gravel road entrance to parking area"
+        className="rounded-lg border border-gray-600"
+      />
+      <figcaption className="text-sm text-gray-400 mt-2">
+        Gravel road entrance (barriers removed by organizer)
+      </figcaption>
+    </figure>
+       <figure>
+      <img
+        src={parking}
+        alt="Parking and turnaround area"
+        className="rounded-lg border border-gray-600"
+      />
+      <figcaption className="text-sm text-gray-400 mt-2">
+        Parking and turnaround area
+      </figcaption>  
+    </figure>
+        </div>
+    </section>
     </main>
   )
 }
