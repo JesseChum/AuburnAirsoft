@@ -1,11 +1,15 @@
 import airsoftImage from "../../assets/image0.jpeg"
 import { useState } from "react"
 
+type Status = "idle" | "sending" | "success" | "error"
+
 export default function Contact() {
-  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle")
+  const [status, setStatus] = useState<Status>("idle")
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    // Always reset first
     setStatus("sending")
 
     const formData = new FormData(e.currentTarget)
@@ -23,17 +27,16 @@ export default function Contact() {
         body: JSON.stringify(payload),
       })
 
-      const data = await res.json().catch(() => null)
+      console.log("CONTACT RESPONSE STATUS:", res.status)
 
-      if (res.ok && data?.ok) {
+      if (res.status === 200) {
         setStatus("success")
         e.currentTarget.reset()
       } else {
-        console.error("API failed:", res.status, data)
         setStatus("error")
       }
     } catch (err) {
-      console.error("Frontend submit error:", err)
+      console.error("CONTACT SUBMIT ERROR:", err)
       setStatus("error")
     }
   }
@@ -43,12 +46,15 @@ export default function Contact() {
       className="relative min-h-screen bg-cover bg-center flex items-center justify-center px-4"
       style={{ backgroundImage: `url(${airsoftImage})` }}
     >
-      <div className="absolute inset-0 bg-black/60"></div>
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-black/60" />
 
+      {/* Card */}
       <div className="relative z-10 w-full max-w-xl bg-zinc-900/90 rounded-lg px-8 py-10 text-white">
-        <h1 className="text-3xl font-extrabold text-center text-green-400 mb-3">
+        <h1 className="text-3xl font-extrabold text-center text-green-400 mb-2">
           CONTACT US
         </h1>
+
         <p className="text-center text-gray-300 mb-8">
           Send us a message!
         </p>
@@ -73,6 +79,7 @@ export default function Contact() {
             name="message"
             placeholder="Message"
             rows={5}
+            required
             className="w-full bg-zinc-800 border border-zinc-700 rounded-md px-4 py-3 resize-none"
           />
 
@@ -80,23 +87,29 @@ export default function Contact() {
             <button
               type="submit"
               disabled={status === "sending"}
-              className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-sm px-6 py-2 rounded-md"
+              className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-sm px-6 py-2 rounded-md transition"
             >
               {status === "sending" ? "Sending..." : "Send"}
             </button>
           </div>
 
+          {/* Status messages */}
           {status === "success" && (
-            <p className="text-green-400 text-center text-sm mt-2">
+            <p className="text-green-400 text-center text-sm mt-3">
               Message sent successfully!
             </p>
           )}
 
           {status === "error" && (
-            <p className="text-red-400 text-center text-sm mt-2">
+            <p className="text-red-400 text-center text-sm mt-3">
               Failed to send message. Try again.
             </p>
           )}
+
+          {/* Debug (optional – remove later) */}
+          <p className="text-xs text-gray-500 text-center mt-2">
+            DEBUG STATUS: {status}
+          </p>
         </form>
       </div>
     </section>
