@@ -1,14 +1,11 @@
-
 import { useState } from "react"
 
 export default function WaiverViewer() {
   const [accepted, setAccepted] = useState(false)
   const [name, setName] = useState("")
   const [dob, setDob] = useState("")
-
   const [emergencyName, setEmergencyName] = useState("")
   const [emergencyPhone, setEmergencyPhone] = useState("")
-
   const [parentName, setParentName] = useState("")
   const [parentAccepted, setParentAccepted] = useState(false)
 
@@ -82,25 +79,40 @@ export default function WaiverViewer() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* PDF Viewer */}
-      <div className="border border-gray-700 rounded-lg overflow-hidden">
-       <iframe
-          src="/AuburnAirsoftWaiver.pdf"
-          className="w-full h-[600px]"
-          title="Waiver PDF"
-/>
-      </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      {/* ================= PDF PREVIEW ================= */}
+      <section className="bg-zinc-800 border border-zinc-700 rounded-xl overflow-hidden shadow-lg">
+        <div className="px-4 py-3 border-b border-zinc-700 flex items-center justify-between">
+          <h2 className="font-semibold text-lg">Waiver Preview</h2>
+          <a
+            href="/AuburnAirsoftWaiver.pdf"
+            target="_blank"
+            className="text-green-400 text-sm hover:underline"
+          >
+            Open full PDF
+          </a>
+        </div>
 
-      {/* Agreement Section */}
-      <div className="bg-gray-800 p-6 rounded-lg space-y-4">
+        <iframe
+          src="/AuburnAirsoftWaiver.pdf"
+          className="w-full h-[500px] bg-white block"
+          title="Waiver PDF"
+        />
+      </section>
+
+      {/* ================= FORM ================= */}
+      <section className="bg-zinc-800 border border-zinc-700 rounded-xl p-6 shadow-lg space-y-4">
+        <h2 className="text-xl font-bold text-green-400">
+          Electronic Waiver Form
+        </h2>
+
         <div>
           <label className="block text-sm mb-1">Full Legal Name</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white"
+            className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white"
           />
         </div>
 
@@ -110,7 +122,7 @@ export default function WaiverViewer() {
             type="date"
             value={dob}
             onChange={(e) => setDob(e.target.value)}
-            className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white"
+            className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white"
           />
         </div>
 
@@ -120,7 +132,7 @@ export default function WaiverViewer() {
             type="text"
             value={emergencyName}
             onChange={(e) => setEmergencyName(e.target.value)}
-            className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white"
+            className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white"
           />
         </div>
 
@@ -130,13 +142,13 @@ export default function WaiverViewer() {
             type="tel"
             value={emergencyPhone}
             onChange={(e) => setEmergencyPhone(e.target.value)}
-            className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white"
+            className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white"
           />
         </div>
 
         {minor && (
-          <div className="border-t border-gray-700 pt-6 space-y-4">
-            <h3 className="text-lg font-bold text-green-400">
+          <div className="border-t border-zinc-700 pt-4 space-y-4">
+            <h3 className="text-lg font-bold text-yellow-400">
               Parent or Legal Guardian Consent
             </h3>
 
@@ -148,7 +160,7 @@ export default function WaiverViewer() {
                 type="text"
                 value={parentName}
                 onChange={(e) => setParentName(e.target.value)}
-                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-white"
+                className="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-2 text-white"
               />
             </div>
 
@@ -165,7 +177,7 @@ export default function WaiverViewer() {
           </div>
         )}
 
-        <label className="flex items-start space-x-2 text-sm">
+        <label className="flex items-start space-x-2 text-sm pt-2">
           <input
             type="checkbox"
             checked={accepted}
@@ -179,7 +191,7 @@ export default function WaiverViewer() {
         <button
           disabled={!canSubmit}
           onClick={submitWaiver}
-          className={`px-6 py-3 rounded font-semibold transition ${
+          className={`w-full mt-4 px-6 py-3 rounded font-semibold transition ${
             canSubmit
               ? "bg-green-500 hover:bg-green-600 text-black"
               : "bg-gray-600 cursor-not-allowed"
@@ -187,7 +199,7 @@ export default function WaiverViewer() {
         >
           Submit Waiver
         </button>
-      </div>
+      </section>
     </div>
   )
 }
