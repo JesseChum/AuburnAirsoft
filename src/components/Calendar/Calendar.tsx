@@ -7,22 +7,18 @@ type CalendarProps = {
 
 export default function Calendar({ events }: CalendarProps) {
   const year = 2026
-  const month = 0 // January (0-based)
+  const month = 0
 
-  // Month label
   const monthLabel = new Date(year, month).toLocaleString("default", {
     month: "long",
     year: "numeric",
   })
 
-  // Weekday labels
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
-  // Calendar math
   const firstDayOfMonth = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
 
-  // Build calendar cells (null = empty padding cell)
   const calendarCells: (number | null)[] = []
 
   for (let i = 0; i < firstDayOfMonth; i++) {
@@ -35,12 +31,11 @@ export default function Calendar({ events }: CalendarProps) {
 
   return (
     <div>
-      {/* Header */}
       <h2 className="text-3xl font-bold text-white mb-6">
         Event Calendar — {monthLabel}
       </h2>
 
-      {/* Weekday labels */}
+      {/* Weekday labels (desktop only) */}
       <div className="hidden md:grid grid-cols-7 gap-4 mb-2 text-center text-green-400 font-semibold">
         {weekDays.map((day) => (
           <div key={day}>{day}</div>
@@ -54,7 +49,7 @@ export default function Calendar({ events }: CalendarProps) {
             return (
               <div
                 key={index}
-                className="border border-transparent min-h-[120px]"
+                className="hidden md:block border border-transparent min-h-[120px]"
               />
             )
           }
@@ -68,9 +63,11 @@ export default function Calendar({ events }: CalendarProps) {
           return (
             <div
               key={day}
-              className="border border-green-800 rounded-md min-h-[120px] p-2"
+              className="border border-green-800 rounded-md p-3 md:min-h-[120px]"
             >
-              <p className="text-xs text-green-300 mb-2">{day}</p>
+              <p className="text-sm font-semibold text-green-300 mb-2">
+                {monthLabel.split(" ")[0]} {day}
+              </p>
 
               <div className="space-y-2">
                 {dayEvents.map((event) => (
