@@ -5,33 +5,35 @@ export default function Contact() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle")
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setStatus("sending")
+  e.preventDefault()
+  setStatus("sending")
 
-    const formData = new FormData(e.currentTarget)
+  const formData = new FormData(e.currentTarget)
 
-    const payload = {
-      name: formData.get("name"),
-      email: formData.get("email"),
-      message: formData.get("message"),
-    }
+  const payload = {
+    name: formData.get("name"),
+    email: formData.get("email"),
+    message: formData.get("message"),
+  }
 
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
+  try {
+    const res = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
 
-      if (!res.ok) throw new Error("Failed")
-
+    if (res.status === 200) {
       setStatus("success")
       e.currentTarget.reset()
-    } catch (err) {
-      console.error(err)
-      setStatus("error")
+    } else {
+      throw new Error(`Server responded with ${res.status}`)
     }
+  } catch (err) {
+    console.error("Frontend submit error:", err)
+    setStatus("error")
   }
+}
 
   return (
     <section
