@@ -49,7 +49,7 @@ export default function Navbar() {
             to="/contact"
             className="ml-4 bg-white text-green-900 px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-200 transition"
           >
-            Contact
+            Contact Us
           </NavLink>
         </div>
 
