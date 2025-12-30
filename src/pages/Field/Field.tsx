@@ -97,7 +97,7 @@ export default function Field() {
         className="rounded-lg border border-gray-600"
       />
       <figcaption className="text-sm text-gray-400 mt-2">
-        Turn onto 118th Ave SE from SE 304th St
+        Turn onto 118th Ave SE from SE 304th St next to hazelwood Elementary
       </figcaption>
     </figure>
     <figure>
