@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
-import { PDFDocument, StandardFonts } from "pdf-lib"
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib"
+import fs from "fs"
+import path from "path"
 
 export default async function handler(
   req: VercelRequest,
@@ -21,49 +23,33 @@ export default async function handler(
     return res.status(400).json({ error: "Missing required fields" })
   }
 
-  // Create PDF
-  const pdfDoc = await PDFDocument.create()
-  const page = pdfDoc.addPage([612, 792])
+  const waiverPath = path.join(
+    process.cwd(),
+    "public/assets/AuburnAirsoftWaiver.pdf"
+  )
+
+  const pdfBytes = fs.readFileSync(waiverPath)
+  const pdfDoc = await PDFDocument.load(pdfBytes)
+
+  const page = pdfDoc.getPages()[0]
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
 
-  const { height } = page.getSize()
-  let y = height - 50
-
-  const draw = (text: string) => {
-    page.drawText(text, {
-      x: 50,
-      y,
-      size: 12,
-      font,
-    })
-    y -= 20
-  }
-
-  draw("AUBURN AIRSOFT COMMUNITY FIELD")
-  draw("")
-  draw(`Participant Name: ${name}`)
-  draw(`Date of Birth: ${dob}`)
-  draw(`Emergency Contact: ${emergencyName}`)
-  draw(`Emergency Phone: ${emergencyPhone}`)
+  page.drawText(name, { x: 170, y: 540, size: 12, font, color: rgb(0, 0, 0) })
+  page.drawText(dob, { x: 170, y: 515, size: 12, font })
+  page.drawText(emergencyName, { x: 170, y: 490, size: 12, font })
+  page.drawText(emergencyPhone, { x: 170, y: 465, size: 12, font })
 
   if (parentName) {
-    draw("")
-    draw(`Parent / Guardian Name: ${parentName}`)
+    page.drawText(parentName, { x: 170, y: 440, size: 12, font })
   }
 
-  draw("")
-  draw(`Signed On: ${new Date().toLocaleDateString()}`)
-  draw("")
-  draw("I acknowledge and agree to the terms of the waiver.")
+  const signedPdf = await pdfDoc.save()
 
-  const pdfBytes = await pdfDoc.save()
-
-  // IMPORTANT HEADERS
   res.setHeader("Content-Type", "application/pdf")
   res.setHeader(
     "Content-Disposition",
     'attachment; filename="Auburn-Airsoft-Waiver.pdf"'
   )
 
-  return res.send(Buffer.from(pdfBytes))
+  return res.send(Buffer.from(signedPdf))
 }
