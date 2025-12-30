@@ -103,7 +103,14 @@ export default function Navbar() {
           >
             Info
           </NavLink>
-
+          
+          {/* CONTACT BUTTON */}
+        <NavLink
+          to="/contact"
+          className="ml-6 bg-white text-green-900 px-4 py-2 rounded-md text-sm font-semibold hover:bg-gray-200 transition"
+        >
+          Contact
+        </NavLink>
         </div>
       </div>
     </nav>

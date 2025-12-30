@@ -165,8 +165,8 @@ export default function Info() {
       </section>
 
       {/* PHOTOS */}
-      <section className="mb-11">
-       <h2 className="text-xl font-semibold mb-4">Information Reference Photos</h2>
+      <section className="mb-12">
+       <h2 className="text-xl font-semibold mt-10 mb-4">Information Reference Photos</h2>
        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
          <figure>
       <img

@@ -10,6 +10,7 @@ import Waiver from './pages/Waiver/Waiver'
 import Events from "./pages/Events/Events"
 import Field from "./pages/Field/Field"
 import Info from "./pages/Info/Info"
+import Contact from "./pages/Contact/Contact"
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/events" element={<Events /> } />
         <Route path="/field" element={<Field />} />
         <Route path="/info" element={<Info />} />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
       <Footer/>
     </>
