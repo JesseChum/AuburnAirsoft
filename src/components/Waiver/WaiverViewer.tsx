@@ -1,4 +1,4 @@
-import waiverPDF from "../../assets/AuburnAirsoftWaiver.pdf"
+
 import { useState } from "react"
 
 export default function WaiverViewer() {
@@ -85,11 +85,11 @@ export default function WaiverViewer() {
     <div className="space-y-6">
       {/* PDF Viewer */}
       <div className="border border-gray-700 rounded-lg overflow-hidden">
-        <iframe
-          src={waiverPDF}
+       <iframe
+          src="/AuburnAirsoftWaiver.pdf"
           className="w-full h-[600px]"
           title="Waiver PDF"
-        />
+/>
       </div>
 
       {/* Agreement Section */}
