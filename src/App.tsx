@@ -8,6 +8,8 @@ import About from './pages/About/About'
 import Rules from './pages/Rules/Rules'
 import Waiver from './pages/Waiver/Waiver'
 import Events from "./pages/Events/Events"
+import Field from "./pages/Field/Field"
+import Info from "./pages/Info/Info"
 
 export default function App() {
   return (
@@ -20,6 +22,8 @@ export default function App() {
         <Route path="/rules" element={<Rules />} />
         <Route path="/waiver" element={<Waiver />} />
         <Route path="/events" element={<Events /> } />
+        <Route path="/field" element={<Field />} />
+        <Route path="/info" element={<Info />} />
       </Routes>
       <Footer/>
     </>

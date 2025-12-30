@@ -79,6 +79,31 @@ export default function Navbar() {
           >
             Events
           </NavLink>
+
+          <NavLink to="/field"
+           className={({ isActive }) =>
+              `text-sm font-medium transition ${
+                isActive
+                  ? "text-green-400"
+                  : "text-gray-300 hover:text-green-400"
+              }`
+            }
+          >
+            Field
+          </NavLink>
+
+          <NavLink to="/Info"
+          className={({ isActive }) =>
+              `text-sm font-medium transition ${
+                isActive
+                  ? "text-green-400"
+                  : "text-gray-300 hover:text-green-400"
+              }`
+            }
+          >
+            Info
+          </NavLink>
+
         </div>
       </div>
     </nav>
