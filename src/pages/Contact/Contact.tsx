@@ -9,10 +9,11 @@ export default function Contact() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    // Always reset first
+    const form = e.currentTarget
+
     setStatus("sending")
 
-    const formData = new FormData(e.currentTarget)
+    const formData = new FormData(form)
 
     const payload = {
       name: formData.get("name"),
@@ -31,7 +32,7 @@ export default function Contact() {
 
       if (res.status === 200) {
         setStatus("success")
-        e.currentTarget.reset()
+        form.reset()
       } else {
         setStatus("error")
       }
@@ -46,10 +47,8 @@ export default function Contact() {
       className="relative min-h-screen bg-cover bg-center flex items-center justify-center px-4"
       style={{ backgroundImage: `url(${airsoftImage})` }}
     >
-      {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/60" />
 
-      {/* Card */}
       <div className="relative z-10 w-full max-w-xl bg-zinc-900/90 rounded-lg px-8 py-10 text-white">
         <h1 className="text-3xl font-extrabold text-center text-green-400 mb-2">
           CONTACT US
@@ -93,7 +92,6 @@ export default function Contact() {
             </button>
           </div>
 
-          {/* Status messages */}
           {status === "success" && (
             <p className="text-green-400 text-center text-sm mt-3">
               Message sent successfully!
@@ -105,11 +103,6 @@ export default function Contact() {
               Failed to send message. Try again.
             </p>
           )}
-
-          {/* Debug (optional – remove later) */}
-          <p className="text-xs text-gray-500 text-center mt-2">
-            DEBUG STATUS: {status}
-          </p>
         </form>
       </div>
     </section>
