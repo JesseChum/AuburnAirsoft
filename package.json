@@ -15,6 +15,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",
     "gh-pages": "^6.3.0",
+    "nodemailer": "^7.0.12",
     "pdf-lib": "^1.17.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.1",
+    "@types/nodemailer": "^7.0.4",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vercel/node": "^5.5.16",
