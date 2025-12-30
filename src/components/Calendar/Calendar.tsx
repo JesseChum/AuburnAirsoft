@@ -41,14 +41,14 @@ export default function Calendar({ events }: CalendarProps) {
       </h2>
 
       {/* Weekday labels */}
-      <div className="grid grid-cols-7 gap-4 mb-2 text-center text-green-400 font-semibold">
+      <div className="hidden md:grid grid-cols-7 gap-4 mb-2 text-center text-green-400 font-semibold">
         {weekDays.map((day) => (
           <div key={day}>{day}</div>
         ))}
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-3">
         {calendarCells.map((day, index) => {
           if (!day) {
             return (
