@@ -14,7 +14,7 @@ export default function Field() {
         <h2 className="text-xl font-semibold mb-2">Location</h2>
         <p><strong>Name:</strong> AuburnDale Park II</p>
         <p><strong>Address:</strong> 30000 118th Ave SE, Auburn, WA 98092</p>
-        <p><strong>Meetup Time:</strong> 10:00 AM – 2:00 / 3:00 PM</p>
+        <p><strong>Meetup Time:</strong> 10:00 AM – 3:00 PM</p>
       </section>
 
       {/* GOOGLE MAP */}
@@ -72,7 +72,7 @@ export default function Field() {
 
       {/* PARKING */}
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Parking & Chrono Area</h2>
+        <h2 className="text-xl font-semibold mb-2">Parking</h2>
         <p className="mb-3">
           At the end of the gravel road, there is a small roundabout where you can turn around.
           Parking is preferred in the marked direction so everyone can exit easily.
@@ -80,9 +80,6 @@ export default function Field() {
         <p className="mb-3">
           There is also a longer parking strip available. A rainwater collection area runs
           through the middle, but it dries up during spring and summer.
-        </p>
-        <p>
-          This larger strip can also be used for chrono.
         </p>
       </section>
 

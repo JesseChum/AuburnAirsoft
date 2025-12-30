@@ -122,13 +122,17 @@ export default function Info() {
 
       {/* SHELTER */}
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Shelter</h2>
+        <h2 className="text-xl font-semibold mb-2">Shelter & Belongings</h2>
         <p className="mb-3">
-          There is currently no shelter available on site.
+          There is currently no shelter available on site. Bathrooms are also not available
+          if you need to use the restroom the closest to use is on 312 street where the 7/11 gas stations are and restraunts
         </p>
         <p>
           Please bring anything you need for personal comfort.
           Funds will be invested soon to purchase canopies.
+        </p>
+        <p>
+          Bring all of your gear and personal belongings to play or rest as very little can be provided.
         </p>
       </section>
 
