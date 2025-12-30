@@ -47,7 +47,7 @@ export default function Contact() {
           CONTACT US
         </h1>
         <p className="text-center text-gray-300 mb-8">
-          Drop us a line!
+          Send us a message!
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
