@@ -55,15 +55,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // These Y values are aligned to the actual underline positions
 const yParticipant = 570
-const yDob = 540
-const ySignature = 510
-const yEmergency = 480
-const yDateSigned = 450
+const yDob = 546
+const ySignature = 518
+const yEmergency = 500
+const yDateSigned = 470
 
 draw(name, x, yParticipant)                       // Participant Name
 draw(dob, x, yDob)                                // Date of Birth
 draw(name, x, ySignature)                         // Signature (typed name)
-draw(`${emergencyName} - ${emergencyPhone}`, x, yEmergency)
+draw(`${emergencyName} - ${emergencyPhone}`, x + 40, yEmergency)
 draw(new Date().toLocaleDateString(), x, yDateSigned)
 
 // Parent / Guardian (MINORS)
