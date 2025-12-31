@@ -1,8 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib"
+import { PDFDocument, StandardFonts, rgb, degrees } from "pdf-lib"
 import fs from "fs"
 import path from "path"
-import { degrees } from "pdf-lib"
 
 export const config = {
   runtime: "nodejs",
@@ -13,21 +12,21 @@ export default async function handler(
   res: VercelResponse
 ) {
   try {
+    //  HARD PROOF THIS FILE IS RUNNING
+    console.log("submit-waiver.ts IS RUNNING")
+
     if (req.method !== "POST") {
-      return res.status(405).json({ error: "Method not allowed" })
+      return res.status(405).send("POST only")
     }
 
     const {
-      name,
-      dob,
-      emergencyName,
-      emergencyPhone,
-      parentName,
-      minor,
-    } = req.body
-
-    // HARD FAIL if this file is not the one running
-    console.log(" submit-waiver.ts RUNNING")
+      name = "TEST NAME",
+      dob = "2000-01-01",
+      emergencyName = "TEST EMERGENCY",
+      emergencyPhone = "0000000000",
+      parentName = "TEST PARENT",
+      minor = true,
+    } = req.body || {}
 
     const pdfPath = path.join(
       process.cwd(),
@@ -36,11 +35,11 @@ export default async function handler(
     )
 
     if (!fs.existsSync(pdfPath)) {
-      throw new Error("PDF NOT FOUND AT /public/AuburnAirsoftWaiver.pdf")
+      throw new Error(" PDF NOT FOUND at /public/AuburnAirsoftWaiver.pdf")
     }
 
-    const existingPdfBytes = fs.readFileSync(pdfPath)
-    const pdfDoc = await PDFDocument.load(existingPdfBytes)
+    const pdfBytes = fs.readFileSync(pdfPath)
+    const pdfDoc = await PDFDocument.load(pdfBytes)
 
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
     const black = rgb(0, 0, 0)
@@ -48,47 +47,45 @@ export default async function handler(
 
     const pages = pdfDoc.getPages()
 
-    // LABEL EVERY PAGE (PROVES PAGE INDEX)
-    pages.forEach((p, i) => {
-      p.drawText(`PAGE INDEX ${i}`, {
-        x: 40,
-        y: 40,
+    // LABEL EVERY PAGE (YOU MUST SEE THIS)
+    pages.forEach((page, i) => {
+      page.drawText(`PAGE INDEX ${i}`, {
+        x: 30,
+        y: 30,
         size: 16,
         font,
         color: red,
       })
     })
 
-    // USE PAGE INDEX 2 (3rd page)
+    // USE PAGE 3 (index 2)
     const page = pages[2]
+    page.setRotation(degrees(0))
 
-    // FORCE ROTATION RESET
-   page.setRotation(degrees(0))
+    const height = page.getHeight()
+    const width = page.getWidth()
 
-    const pageHeight = page.getHeight()
-
-    //  PROOF TEXT — SHOULD APPEAR TOP LEFT
-    page.drawText(" TOP LEFT TEST", {
-      x: 50,
-      y: pageHeight - 50,
+    // EXTREME CORNER TESTS
+    page.drawText("TOP LEFT", {
+      x: 20,
+      y: height - 40,
       size: 20,
       font,
       color: red,
     })
 
-    //  PROOF TEXT — SHOULD APPEAR BOTTOM RIGHT
-    page.drawText("BOTTOM RIGHT TEST", {
-      x: page.getWidth() - 300,
-      y: 50,
+    page.drawText("BOTTOM RIGHT", {
+      x: width - 260,
+      y: 40,
       size: 20,
       font,
       color: red,
     })
 
-    // ==============================
-    // REAL FIELD COORDINATES
-    // ==============================
-    const x = 230
+    // ============================
+    // FIELD PLACEMENT TEST
+    // ============================
+    const x = 220
 
     const draw = (text: string, y: number) => {
       page.drawText(String(text), {
@@ -100,44 +97,28 @@ export default async function handler(
       })
     }
 
-    // THESE VALUES WILL NOW MOVE — GUARANTEED
-    draw(name, 570)                         // Participant Name
-    draw(dob, 545)                          // DOB
-    draw(name, 520)                         // Signature
-    draw(`${emergencyName} - ${emergencyPhone}`, 495)
-    draw(new Date().toLocaleDateString(), 470)
+    draw(name, 560)
+    draw(dob, 535)
+    draw(`${emergencyName} - ${emergencyPhone}`, 510)
+    draw(new Date().toLocaleDateString(), 485)
 
-    // ==============================
-    // PARENT / GUARDIAN (MINORS)
-    // ==============================
-    if (minor && parentName) {
-      draw(parentName, 325)                 // Parent Name
-      draw(parentName, 305)                 // Parent Signature
+    if (minor) {
+      draw(parentName, 330)
+      draw(parentName, 305)
       draw(new Date().toLocaleDateString(), 280)
-    } else {
-      page.drawText("NO PARENT DATA RENDERED", {
-        x: 50,
-        y: 300,
-        size: 14,
-        font,
-        color: red,
-      })
     }
 
-    const outputBytes = await pdfDoc.save()
+    const output = await pdfDoc.save()
 
     res.setHeader("Content-Type", "application/pdf")
     res.setHeader(
       "Content-Disposition",
-      'attachment; filename="Auburn-Airsoft-Waiver.pdf"'
+      'attachment; filename="TEST-WAIVER.pdf"'
     )
 
-    return res.status(200).send(Buffer.from(outputBytes))
+    return res.status(200).send(Buffer.from(output))
   } catch (err) {
-    console.error("WAIVER API ERROR:", err)
-    return res.status(500).json({
-      error: "Waiver generation failed",
-      message: err instanceof Error ? err.message : String(err),
-    })
+    console.error("WAIVER ERROR:", err)
+    return res.status(500).send(String(err))
   }
 }
