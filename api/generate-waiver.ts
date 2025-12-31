@@ -57,20 +57,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 const yParticipant = 570
 const yDob = 545
 const ySignature = 520
-const yEmergency = 500
+const yEmergency = 498
 const yDateSigned = 470
 
 draw(name, x, yParticipant)                       // Participant Name
 draw(dob, x, yDob)                                // Date of Birth
 draw(name, x, ySignature)                         // Signature (typed name)
-draw(`${emergencyName} - ${emergencyPhone}`, x + 45, yEmergency)
+draw(`${emergencyName} - ${emergencyPhone}`, x + 47, yEmergency)
 draw(new Date().toLocaleDateString(), x, yDateSigned)
 
 // Parent / Guardian (MINORS)
 if (parentName) {
-  const yParentName = 370
-  const yParentSignature = 340
-  const yParentDate = 310
+  const yParentName = 350
+  const yParentSignature = 320
+  const yParentDate = 290
 
   draw(parentName, x, yParentName)
   draw(parentName, x, yParentSignature)
