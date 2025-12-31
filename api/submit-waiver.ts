@@ -1,26 +1,14 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
-import { PDFDocument, StandardFonts } from "pdf-lib"
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib"
 import { createClient } from "@supabase/supabase-js"
 import fs from "fs"
 import path from "path"
 
-console.log("SUPABASE_URL exists:", !!process.env.SUPABASE_URL)
-console.log(
-  "SERVICE ROLE exists:",
-  !!process.env.SUPABASE_SERVICE_ROLE_KEY
-)
-
-/**
- * Supabase admin client (server-only)
- */
 const supabase = createClient(
-  process.env.SUPABASE_URL as string,
-  process.env.SUPABASE_SERVICE_ROLE_KEY as string
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-/**
- * POST /api/submit-waiver
- */
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse
@@ -35,80 +23,104 @@ export default async function handler(
       dob,
       emergencyName,
       emergencyPhone,
+      parentName,
+      isMinor,
     }: {
       name: string
       dob: string
       emergencyName: string
       emergencyPhone: string
+      parentName?: string
+      isMinor: boolean
     } = req.body
 
     if (!name || !dob || !emergencyName || !emergencyPhone) {
       return res.status(400).json({ error: "Missing required fields" })
     }
 
-    /**
-     * Load base PDF from /public
-     */
-    const pdfPath = path.join(process.cwd(), "public", "AuburnAirsoftWaiver.pdf")
-    const basePdf = fs.readFileSync(pdfPath)
+    // ---- Load PDF ----
+    const pdfPath = path.join(
+      process.cwd(),
+      "public",
+      "AuburnAirsoftWaiver.pdf"
+    )
 
-    const pdfDoc = await PDFDocument.load(basePdf)
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
+    const pdfBytes = fs.readFileSync(pdfPath)
+    const pdfDoc = await PDFDocument.load(pdfBytes)
 
-    // Page 3 (0-based index)
     const pages = pdfDoc.getPages()
-    const page = pages[2]
-
-    /**
-     * Draw user data onto PDF
-     */
-    page.drawText(name, { x: 100, y: 500, size: 12, font })
-    page.drawText(dob, { x: 100, y: 480, size: 12, font })
-    page.drawText(emergencyName, { x: 100, y: 460, size: 12, font })
-    page.drawText(emergencyPhone, { x: 100, y: 440, size: 12, font })
-
-    /**
-     * Save PDF
-     */
-    const finalPdfBytes = await pdfDoc.save()
-
-    const safeName = name.replace(/[^a-z0-9]/gi, "_").toLowerCase()
-    const fileName = `waiver-${safeName}-${Date.now()}.pdf`
-
-    /**
-     * Upload to Supabase Storage
-     */
-    const { error: uploadError } = await supabase.storage
-      .from("waivers")
-      .upload(fileName, finalPdfBytes, {
-        contentType: "application/pdf",
-        upsert: false,
-      })
-
-    if (uploadError) {
-      throw uploadError
+    if (pages.length < 3) {
+      throw new Error("Expected waiver PDF to have at least 3 pages")
     }
 
-    /**
-     * Insert DB record (AFTER upload succeeds)
-     */
+    const page = pages[2] // PAGE 3
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
+    const black = rgb(0, 0, 0)
+
+    const draw = (text: string, x: number, y: number) => {
+      page.drawText(String(text), {
+        x,
+        y,
+        size: 12,
+        font,
+        color: black,
+      })
+    }
+
+    // ---------------------------
+    // PAGE 3 COORDINATES (RESTORED)
+    // ---------------------------
+    const x = 230
+
+    const yParticipant = 570
+    const yDob = 545
+    const ySignature = 520
+    const yEmergency = 498
+    const yDateSigned = 470
+
+    draw(name, x, yParticipant)
+    draw(dob, x, yDob)
+    draw(name, x, ySignature)
+    draw(`${emergencyName} - ${emergencyPhone}`, x + 47, yEmergency)
+    draw(new Date().toLocaleDateString(), x, yDateSigned)
+
+    // ---- Parent / Guardian (MINORS) ----
+    if (isMinor && parentName) {
+      const yParentName = 327
+      const yParentSignature = 305
+      const yParentDate = 277
+
+      draw(parentName, x, yParentName)
+      draw(parentName, x, yParentSignature)
+      draw(new Date().toLocaleDateString(), x, yParentDate)
+    }
+
+    // ---- Save PDF ----
+    const finalPdf = await pdfDoc.save()
+    const fileName = `waiver-${Date.now()}.pdf`
+
+    // ---- Upload to Supabase Storage ----
+    const { error: uploadError } = await supabase.storage
+      .from("waivers")
+      .upload(fileName, finalPdf, {
+        contentType: "application/pdf",
+      })
+
+    if (uploadError) throw uploadError
+
+    // ---- Insert DB Record ----
     await supabase.from("waivers").insert({
       participant_name: name,
       date_of_birth: dob,
-      is_minor: false,
+      emergency_contact: `${emergencyName} - ${emergencyPhone}`,
+      parent_name: isMinor ? parentName : null,
       pdf_path: fileName,
+      signed_at: new Date().toISOString(),
     })
 
-    return res.status(200).json({
-      success: true,
-      fileName,
-    })
+    return res.status(200).json({ success: true, fileName })
   } catch (err) {
-    if (err instanceof Error) {
-      console.error(err.message)
-      return res.status(500).json({ error: err.message })
-    }
-
-    return res.status(500).json({ error: "Unknown server error" })
+    console.error("WAIVER ERROR:", err)
+    return res.status(500).json({ error: "Waiver generation failed" })
   }
 }
