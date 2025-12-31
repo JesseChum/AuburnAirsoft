@@ -101,7 +101,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Parent / Guardian (Minors)
     // ---------------------------
     if (parentName) {
-      const yParentName = 327
+      const yParentName = 329
       const yParentSignature = 305
       const yParentDate = 277
 
@@ -119,7 +119,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // UPLOAD TO SUPABASE STORAGE
     // ===========================
     const safeName = name.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-    const fileName = `waivers/${safeName}-${Date.now()}.pdf`
+    const fileName = `${safeName}-${Date.now()}.pdf`
+
 
     const { error: uploadError } = await supabase.storage
       .from("waivers")
