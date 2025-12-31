@@ -53,17 +53,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // ---------------------------
     const x = 230
 
-    draw(name, x, 630)                           // Participant Name
-    draw(dob, x, 600)                            // Date of Birth
-    draw(name, x, 570)                           // Signature (typed name)
-    draw(`${emergencyName} - ${emergencyPhone}`, x, 540) // Emergency Contact
-    draw(new Date().toLocaleDateString(), x, 510) // Date Signed
+    draw(name, x, 605)                           // Participant Name
+    draw(dob, x, 575)                            // Date of Birth
+    draw(name, x, 545)                           // Signature (typed name)
+    draw(`${emergencyName} - ${emergencyPhone}`, x, 515) // Emergency Contact
+    draw(new Date().toLocaleDateString(), x, 485) // Date Signed
 
     // Parent / Guardian (only if provided)
     if (parentName) {
-      draw(parentName, x, 430)                   // Parent Name
-      draw(parentName, x, 400)                   // Parent Signature
-      draw(new Date().toLocaleDateString(), x, 370) // Parent Date Signed
+      draw(parentName, x, 405)                   // Parent Name
+      draw(parentName, x, 375)                   // Parent Signature
+      draw(new Date().toLocaleDateString(), x, 345) // Parent Date Signed
     }
 
     const outputBytes = await pdfDoc.save()
