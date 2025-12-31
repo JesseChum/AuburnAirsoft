@@ -53,17 +53,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // ---------------------------
     const x = 230
 
-    draw(name, x, 595)                           // Participant Name
-    draw(dob, x, 585)                            // Date of Birth
-    draw(name, x, 555)                           // Signature (typed name)
-    draw(`${emergencyName} - ${emergencyPhone}`, x, 525) // Emergency Contact
-    draw(new Date().toLocaleDateString(), x, 465) // Date Signed
+    // These Y values are aligned to the actual underline positions
+const yParticipant = 570
+const yDob = 540
+const ySignature = 510
+const yEmergency = 480
+const yDateSigned = 450
 
-    // Parent / Guardian (only if provided)
-    if (parentName) {
-      draw(parentName, x, 405)                   // Parent Name
-      draw(parentName, x, 375)                   // Parent Signature
-      draw(new Date().toLocaleDateString(), x, 345) // Parent Date Signed
+draw(name, x, yParticipant)                       // Participant Name
+draw(dob, x, yDob)                                // Date of Birth
+draw(name, x, ySignature)                         // Signature (typed name)
+draw(`${emergencyName} - ${emergencyPhone}`, x, yEmergency)
+draw(new Date().toLocaleDateString(), x, yDateSigned)
+
+// Parent / Guardian (MINORS)
+if (parentName) {
+  const yParentName = 370
+  const yParentSignature = 340
+  const yParentDate = 310
+
+  draw(parentName, x, yParentName)
+  draw(parentName, x, yParentSignature)
+  draw(new Date().toLocaleDateString(), x, yParentDate)
     }
 
     const outputBytes = await pdfDoc.save()
