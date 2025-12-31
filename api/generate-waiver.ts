@@ -68,9 +68,9 @@ draw(new Date().toLocaleDateString(), x, yDateSigned)
 
 // Parent / Guardian (MINORS)
 if (parentName) {
-  const yParentName = 310
-  const yParentSignature = 290
-  const yParentDate = 270
+  const yParentName = 320
+  const yParentSignature = 300
+  const yParentDate = 280
 
   draw(parentName, x, yParentName)
   draw(parentName, x, yParentSignature)
