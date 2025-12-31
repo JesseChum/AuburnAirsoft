@@ -5,15 +5,6 @@ import fs from "fs"
 import path from "path"
 
 // --------------------------------------------------
-// ENV VERIFICATION (temporary – safe to remove later)
-// --------------------------------------------------
-console.log("SUPABASE_URL =", process.env.SUPABASE_URL)
-console.log(
-  "SUPABASE_SERVICE_ROLE_KEY =",
-  process.env.SUPABASE_SERVICE_ROLE_KEY ? "OK" : "MISSING"
-)
-
-// --------------------------------------------------
 // Supabase server client (SERVICE ROLE)
 // --------------------------------------------------
 const supabase = createClient(
@@ -30,16 +21,10 @@ export const config = {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    // ---------------------------
-    // Method check
-    // ---------------------------
     if (req.method !== "POST") {
       return res.status(405).json({ error: "Method not allowed" })
     }
 
-    // ---------------------------
-    // Extract & validate body
-    // ---------------------------
     const { name, dob, emergencyName, emergencyPhone, parentName } = req.body
 
     if (!name || !dob || !emergencyName || !emergencyPhone) {
@@ -47,7 +32,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // ---------------------------
-    // Load waiver template PDF
+    // Load waiver template
     // ---------------------------
     const waiverPath = path.join(
       process.cwd(),
@@ -58,17 +43,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const existingPdfBytes = fs.readFileSync(waiverPath)
     const pdfDoc = await PDFDocument.load(existingPdfBytes)
 
-    const pages = pdfDoc.getPages()
-    if (pages.length < 3) {
-      throw new Error("Expected 3 pages in waiver PDF")
-    }
-
-    // ---------------------------
-    // PAGE 3 — ACKNOWLEDGMENT & SIGNATURE
-    // ---------------------------
-    const page = pages[2]
+    const page = pdfDoc.getPages()[2]
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
-    const black = rgb(0, 0, 0)
 
     const draw = (text: string, x: number, y: number) => {
       page.drawText(String(text), {
@@ -76,81 +52,58 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         y,
         size: 11,
         font,
-        color: black,
+        color: rgb(0, 0, 0),
       })
     }
 
     // ---------------------------
-    // FIELD COORDINATES (FINAL)
+    // Coordinates (final)
     // ---------------------------
     const x = 230
 
-    const yParticipant = 570
-    const yDob = 545
-    const ySignature = 520
-    const yEmergency = 498
-    const yDateSigned = 470
+    draw(name, x, 570)
+    draw(dob, x, 545)
+    draw(name, x, 520)
+    draw(`${emergencyName} - ${emergencyPhone}`, x + 47, 498)
+    draw(new Date().toLocaleDateString(), x, 470)
 
-    draw(name, x, yParticipant)                         // Participant Name
-    draw(dob, x, yDob)                                  // Date of Birth
-    draw(name, x, ySignature)                           // Signature
-    draw(`${emergencyName} - ${emergencyPhone}`, x + 47, yEmergency)
-    draw(new Date().toLocaleDateString(), x, yDateSigned)
-
-    // ---------------------------
-    // Parent / Guardian (Minors)
-    // ---------------------------
     if (parentName) {
-      const yParentName = 329
-      const yParentSignature = 305
-      const yParentDate = 277
-
-      draw(parentName, x, yParentName)
-      draw(parentName, x, yParentSignature)
-      draw(new Date().toLocaleDateString(), x, yParentDate)
+      draw(parentName, x, 329)
+      draw(parentName, x, 305)
+      draw(new Date().toLocaleDateString(), x, 277)
     }
 
     // ---------------------------
-    // Generate final PDF bytes
+    // Save PDF
     // ---------------------------
-    const outputBytes = await pdfDoc.save()
+    const pdfBytes = await pdfDoc.save()
 
-    // ===========================
-    // UPLOAD TO SUPABASE STORAGE
-    // ===========================
+    // ---------------------------
+    // Upload to Supabase Storage
+    // ---------------------------
     const safeName = name.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-    const fileName = `waivers/${safeName}-${Date.now()}.pdf`
+    const fileName = `${safeName}-${Date.now()}.pdf`
 
-    const { error: uploadError } = await supabase.storage
+    const { error } = await supabase.storage
       .from("waivers")
-      .upload(fileName, Buffer.from(outputBytes), {
+      .upload(fileName, Buffer.from(pdfBytes), {
         contentType: "application/pdf",
-        upsert: false,
       })
 
-    if (uploadError) {
-      console.error("Supabase upload failed:", uploadError)
-      return res.status(500).json({
-        error: "Failed to upload waiver",
-      })
+    if (error) {
+      console.error("UPLOAD ERROR:", error)
+      throw error
     }
 
-    // ---------------------------
-    // Return PDF to browser
-    // ---------------------------
+    // ✅ SUCCESS RESPONSE (NO PDF SENT)
     return res.status(200).json({
-     success: true,
+      success: true,
       file: fileName,
     })
-
-    return res.status(200).send(Buffer.from(outputBytes))
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err)
+  } catch (err) {
     console.error("WAIVER API ERROR:", err)
-
     return res.status(500).json({
-      error: "Waiver generation failed",
-      message,
+      error: "Failed to submit waiver",
     })
   }
 }
