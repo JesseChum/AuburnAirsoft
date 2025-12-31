@@ -25,23 +25,45 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       "AuburnAirsoftWaiver.pdf"
     )
 
-    if (!fs.existsSync(waiverPath)) {
-      throw new Error(`Waiver PDF not found at ${waiverPath}`)
-    }
-
     const existingPdfBytes = fs.readFileSync(waiverPath)
     const pdfDoc = await PDFDocument.load(existingPdfBytes)
 
-    const page = pdfDoc.getPages()[0]
+    const pages = pdfDoc.getPages()
+    if (pages.length < 3) {
+      throw new Error("Expected 3 pages in waiver PDF")
+    }
+
+    //PAGE 3 — ACKNOWLEDGMENT & SIGNATURE
+    const page = pages[2]
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
+    const black = rgb(0, 0, 0)
 
-    page.drawText(String(name), { x: 170, y: 540, size: 12, font, color: rgb(0,0,0) })
-    page.drawText(String(dob), { x: 170, y: 520, size: 12, font })
-    page.drawText(String(emergencyName), { x: 170, y: 500, size: 12, font })
-    page.drawText(String(emergencyPhone), { x: 170, y: 480, size: 12, font })
+    const draw = (text: string, x: number, y: number) => {
+      page.drawText(String(text), {
+        x,
+        y,
+        size: 12,
+        font,
+        color: black,
+      })
+    }
 
+    // ---------------------------
+    // PAGE 3 FIELD COORDINATES
+    // ---------------------------
+    const x = 230
+
+    draw(name, x, 630)                           // Participant Name
+    draw(dob, x, 600)                            // Date of Birth
+    draw(name, x, 570)                           // Signature (typed name)
+    draw(`${emergencyName} - ${emergencyPhone}`, x, 540) // Emergency Contact
+    draw(new Date().toLocaleDateString(), x, 510) // Date Signed
+
+    // Parent / Guardian (only if provided)
     if (parentName) {
-      page.drawText(String(parentName), { x: 170, y: 460, size: 12, font })
+      draw(parentName, x, 430)                   // Parent Name
+      draw(parentName, x, 400)                   // Parent Signature
+      draw(new Date().toLocaleDateString(), x, 370) // Parent Date Signed
     }
 
     const outputBytes = await pdfDoc.save()
@@ -54,20 +76,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(200).send(Buffer.from(outputBytes))
   } catch (err: unknown) {
-  if (err instanceof Error) {
-    console.error("WAIVER API ERROR:", err.message)
+    const message = err instanceof Error ? err.message : String(err)
+    console.error("WAIVER API ERROR:", err)
+
     return res.status(500).json({
       error: "Waiver generation failed",
-      message: err.message,
-      stack: err.stack,
+      message,
     })
-  }
-
-  console.error("WAIVER API ERROR:", err)
-
-  return res.status(500).json({
-    error: "Waiver generation failed",
-    message: "Unknown error",
-   })
   }
 }
