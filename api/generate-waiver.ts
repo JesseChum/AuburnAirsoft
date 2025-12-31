@@ -119,8 +119,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // UPLOAD TO SUPABASE STORAGE
     // ===========================
     const safeName = name.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-    const fileName = `${safeName}-${Date.now()}.pdf`
-
+    const fileName = `waivers/${safeName}-${Date.now()}.pdf`
 
     const { error: uploadError } = await supabase.storage
       .from("waivers")
@@ -139,11 +138,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // ---------------------------
     // Return PDF to browser
     // ---------------------------
-    res.setHeader("Content-Type", "application/pdf")
-    res.setHeader(
-      "Content-Disposition",
-      'attachment; filename="Auburn-Airsoft-Waiver.pdf"'
-    )
+    return res.status(200).json({
+     success: true,
+      file: fileName,
+    })
 
     return res.status(200).send(Buffer.from(outputBytes))
   } catch (err: unknown) {
