@@ -101,24 +101,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const supabase = getSupabase()
 
     const safeName = String(name).toLowerCase().replace(/[^a-z0-9]+/g, "-")
-    const fileName = `${safeName}-${Date.now()}.pdf` // ✅ no "waivers/" prefix here
+const fileName = `${safeName}-${Date.now()}.pdf`
 
-    const { error: uploadError } = await supabase.storage
-      .from("waivers")
-      .upload(fileName, Buffer.from(pdfBytes), {
-        contentType: "application/pdf",
-        upsert: false,
-      })
+const { error: uploadError } = await supabase.storage
+  .from("waivers")
+  .upload(fileName, Buffer.from(pdfBytes), {
+    contentType: "application/pdf",
+    upsert: false,
+  })
 
-    if (uploadError) {
-      console.error("SUPABASE UPLOAD ERROR:", uploadError)
-      throw new Error(`Supabase upload failed: ${uploadError.message}`)
-    }
+if (uploadError) {
+  console.error("SUPABASE UPLOAD ERROR:", uploadError)
+  throw new Error(uploadError.message)
+}
 
-    return res.status(200).json({
-      success: true,
-      file: fileName,
-    })
+return res.status(200).json({
+  success: true,
+  file: fileName,
+})
   } catch (err) {
     console.error("WAIVER API ERROR:", err)
     const message = err instanceof Error ? err.message : String(err)
