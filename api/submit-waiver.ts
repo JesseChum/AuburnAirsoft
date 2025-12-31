@@ -49,7 +49,7 @@ export default async function handler(
     /**
      * Load base PDF from /public
      */
-    const pdfPath = path.join(process.cwd(), "public", "waiver.pdf")
+    const pdfPath = path.join(process.cwd(), "public", "AuburnAirsoftWaiver.pdf")
     const basePdf = fs.readFileSync(pdfPath)
 
     const pdfDoc = await PDFDocument.load(basePdf)
