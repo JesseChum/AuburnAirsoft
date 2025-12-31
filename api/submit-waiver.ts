@@ -90,11 +90,11 @@ export default async function handler(
     // ---------------------------
     const x = 230
 
-    const yParticipant = 563
-    const yDob = 538
-    const ySignature = 513
-    const yEmergency = 491
-    const yDateSigned = 463
+    const yParticipant = 570
+    const yDob = 545
+    const ySignature = 520
+    const yEmergency = 498
+    const yDateSigned = 470
 
     draw(name, x, yParticipant)
     draw(dob, x, yDob)
