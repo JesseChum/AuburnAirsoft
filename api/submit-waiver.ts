@@ -1,120 +1,98 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib"
-import { createClient } from "@supabase/supabase-js"
 import fs from "fs"
 import path from "path"
 
-const HANDLER_VERSION = "submit-waiver v3 SHIFT_TEST 2025-12-31"
+export const config = {
+  runtime: "nodejs",
+}
 
-// BIG shifts so you can’t miss the movement
-const SHIFT_X = 200
-const SHIFT_Y = -80
-
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed", HANDLER_VERSION })
-  }
-
+export default async function handler(
+  req: VercelRequest,
+  res: VercelResponse
+) {
   try {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" })
+    }
+
     const {
       name,
       dob,
       emergencyName,
       emergencyPhone,
       parentName,
-    }: {
-      name: string
-      dob: string
-      emergencyName: string
-      emergencyPhone: string
-      parentName?: string
     } = req.body
 
     if (!name || !dob || !emergencyName || !emergencyPhone) {
-      return res.status(400).json({ error: "Missing required fields", HANDLER_VERSION })
+      return res.status(400).json({ error: "Missing required fields" })
     }
 
-    // determine minor
-    const birthDate = new Date(dob)
-    const today = new Date()
-    let age = today.getFullYear() - birthDate.getFullYear()
-    const m = today.getMonth() - birthDate.getMonth()
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--
-    const isMinor = age < 18
+    // Load base PDF
+    const pdfPath = path.join(
+      process.cwd(),
+      "public",
+      "AuburnAirsoftWaiver.pdf"
+    )
 
-    console.log("HANDLER_VERSION:", HANDLER_VERSION)
-    console.log("SHIFT_X:", SHIFT_X, "SHIFT_Y:", SHIFT_Y)
-    console.log("DOB:", dob, "age:", age, "isMinor:", isMinor, "parentName:", parentName)
-
-    // Load your PDF
-    const pdfPath = path.join(process.cwd(), "public", "AuburnAirsoftWaiver.pdf")
     const pdfBytes = fs.readFileSync(pdfPath)
-
     const pdfDoc = await PDFDocument.load(pdfBytes)
-    const pages = pdfDoc.getPages()
-    const page = pages[2]
 
+    const pages = pdfDoc.getPages()
+    if (pages.length < 3) {
+      throw new Error("Expected 3 pages in waiver PDF")
+    }
+
+    const page = pages[2] // PAGE 3
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
     const black = rgb(0, 0, 0)
 
-    // HUGE debug stamp so you can confirm this code ran
-    page.drawText(HANDLER_VERSION, { x: 50, y: 740, size: 18, font, color: black })
-
     const draw = (text: string, x: number, y: number) => {
       page.drawText(String(text), {
-        x: x + SHIFT_X,
-        y: y + SHIFT_Y,
+        x,
+        y,
         size: 12,
         font,
         color: black,
       })
     }
 
-    // Base coords (we’ll calibrate once we confirm code is running)
-    const x = 230
-    const yParticipant = 570
-    const yDob = 545
-    const ySignature = 520
-    const yEmergency = 498
-    const yDateSigned = 470
+    // --------------------------------------------------
+    // PAGE 3 – VERIFIED COORDINATES (SHIFTED RIGHT)
+    // --------------------------------------------------
 
-    draw(name, x, yParticipant)
-    draw(dob, x, yDob)
-    draw(name, x, ySignature)
-    draw(`${emergencyName} - ${emergencyPhone}`, x + 47, yEmergency)
-    draw(new Date().toLocaleDateString(), x, yDateSigned)
+    const x = 255 // shifted right to sit ON the line
 
-    if (isMinor && parentName && parentName.trim() !== "") {
-      const yParentName = 327
-      const yParentSignature = 305
-      const yParentDate = 277
+    draw(name, x, 570)                         // Participant Name
+    draw(dob, x, 545)                          // Date of Birth
+    draw(name, x, 520)                         // Signature (typed)
+    draw(
+      `${emergencyName} - ${emergencyPhone}`,
+      x + 55,
+      498
+    )
+    draw(new Date().toLocaleDateString(), x, 470)
 
-      draw(parentName, x, yParentName)
-      draw(parentName, x, yParentSignature)
-      draw(new Date().toLocaleDateString(), x, yParentDate)
+    // --------------------------------------------------
+    // PARENT / GUARDIAN (MINORS)
+    // --------------------------------------------------
+    if (parentName) {
+      draw(parentName, x, 327)                 // Parent Name
+      draw(parentName, x, 305)                 // Parent Signature
+      draw(new Date().toLocaleDateString(), x, 277)
     }
 
-    const finalPdf = await pdfDoc.save()
-    const fileName = `waiver-${Date.now()}.pdf`
+    const outputBytes = await pdfDoc.save()
 
-    const { error } = await supabase.storage
-      .from("waivers")
-      .upload(fileName, finalPdf, { contentType: "application/pdf" })
+    res.setHeader("Content-Type", "application/pdf")
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="Auburn-Airsoft-Waiver.pdf"'
+    )
 
-    if (error) throw error
-
-    return res.status(200).json({
-      success: true,
-      fileName,
-      debug: { HANDLER_VERSION, SHIFT_X, SHIFT_Y, isMinor, parentName: parentName ?? null },
-    })
+    return res.status(200).send(Buffer.from(outputBytes))
   } catch (err) {
-    console.error("WAIVER ERROR:", err)
-    return res.status(500).json({ error: "Waiver generation failed", HANDLER_VERSION })
+    console.error("WAIVER API ERROR:", err)
+    return res.status(500).json({ error: "Waiver generation failed" })
   }
 }
