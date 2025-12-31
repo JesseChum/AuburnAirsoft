@@ -53,11 +53,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // ---------------------------
     const x = 230
 
-    draw(name, x, 605)                           // Participant Name
-    draw(dob, x, 575)                            // Date of Birth
-    draw(name, x, 545)                           // Signature (typed name)
-    draw(`${emergencyName} - ${emergencyPhone}`, x, 515) // Emergency Contact
-    draw(new Date().toLocaleDateString(), x, 485) // Date Signed
+    draw(name, x, 540)                           // Participant Name
+    draw(dob, x, 530)                            // Date of Birth
+    draw(name, x, 500)                           // Signature (typed name)
+    draw(`${emergencyName} - ${emergencyPhone}`, x, 480) // Emergency Contact
+    draw(new Date().toLocaleDateString(), x, 440) // Date Signed
 
     // Parent / Guardian (only if provided)
     if (parentName) {
