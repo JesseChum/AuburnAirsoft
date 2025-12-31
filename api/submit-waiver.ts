@@ -4,6 +4,12 @@ import { createClient } from "@supabase/supabase-js"
 import fs from "fs"
 import path from "path"
 
+console.log("SUPABASE_URL exists:", !!process.env.SUPABASE_URL)
+console.log(
+  "SERVICE ROLE exists:",
+  !!process.env.SUPABASE_SERVICE_ROLE_KEY
+)
+
 /**
  * Supabase admin client (server-only)
  */
