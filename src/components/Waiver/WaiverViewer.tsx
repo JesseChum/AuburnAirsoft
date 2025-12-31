@@ -39,7 +39,7 @@ export default function WaiverViewer() {
   // ---- Submit handler ----
   async function submitWaiver() {
     try {
-      const response = await fetch("/api/generate-waiver", {
+      const response = await fetch("/api/submit-waiver", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -59,17 +59,8 @@ export default function WaiverViewer() {
         return
       }
 
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-
-      const a = document.createElement("a")
-      a.href = url
-      a.download = "Auburn-Airsoft-Waiver.pdf"
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-
-      window.URL.revokeObjectURL(url)
+      const data = await response.json()
+      console.log("Waiver stored as:", data.fileName)
 
       alert("Waiver submitted successfully")
     } catch (err) {
