@@ -48,11 +48,13 @@ export default async function handler(
 
     const pdfDoc = await PDFDocument.load(basePdf)
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
-    const page = pdfDoc.getPages()[0]
+
+    // Page 3 (0-based index)
+    const pages = pdfDoc.getPages()
+    const page = pages[2]
 
     /**
      * Draw user data onto PDF
-     * (adjust coordinates later if needed)
      */
     page.drawText(name, { x: 100, y: 500, size: 12, font })
     page.drawText(dob, { x: 100, y: 480, size: 12, font })
@@ -63,21 +65,33 @@ export default async function handler(
      * Save PDF
      */
     const finalPdfBytes = await pdfDoc.save()
-    const fileName = `waiver-${Date.now()}.pdf`
+
+    const safeName = name.replace(/[^a-z0-9]/gi, "_").toLowerCase()
+    const fileName = `waiver-${safeName}-${Date.now()}.pdf`
 
     /**
      * Upload to Supabase Storage
      */
-    const { error } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from("waivers")
       .upload(fileName, finalPdfBytes, {
         contentType: "application/pdf",
         upsert: false,
       })
 
-    if (error) {
-      throw error
+    if (uploadError) {
+      throw uploadError
     }
+
+    /**
+     * Insert DB record (AFTER upload succeeds)
+     */
+    await supabase.from("waivers").insert({
+      participant_name: name,
+      date_of_birth: dob,
+      is_minor: false,
+      pdf_path: fileName,
+    })
 
     return res.status(200).json({
       success: true,
