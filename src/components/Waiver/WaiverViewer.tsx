@@ -37,39 +37,32 @@ export default function WaiverViewer() {
     (!minor || (parentName && parentAccepted))
 
   // ---- Submit handler ----
-  async function submitWaiver() {
-  try {
-    const response = await fetch("/api/submit-waiver", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        dob,
-        emergencyName,
-        emergencyPhone,
-        parentName: minor ? parentName : null,
-        minor,
-      }),
-    })
+ async function submitWaiver() {
+  const res = await fetch("/api/submit-waiver", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name,
+      dob,
+      emergencyName,
+      emergencyPhone,
+      parentName: minor ? parentName : null,
+      minor,
+    }),
+  })
 
-    if (!response.ok) {
-      alert("Failed to submit waiver")
-      return
-    }
-
-    // THIS IS THE KEY CHANGE
-    const blob = await response.blob()
-    const url = URL.createObjectURL(blob)
-
-    // Optional: open generated PDF
-    window.open(url)
-
-    alert("Waiver submitted successfully")
-  } catch (err) {
-    console.error(err)
-    alert("There was an error submitting the waiver.")
+  if (!res.ok) {
+    alert("Submission failed")
+    return
   }
+
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  window.open(url)
+
+  alert("Waiver submitted successfully")
 }
+
 
 
   return (
