@@ -1,3 +1,4 @@
+import { useState } from "react"
 import type { Event } from "../../types/Event"
 import CalendarEvent from "./CalendarEvent"
 
@@ -7,17 +8,17 @@ type CalendarProps = {
 
 export default function Calendar({ events }: CalendarProps) {
   const year = 2026
-  const month = 0
+  const [currentMonth, setCurrentMonth] = useState(0) // 0 = January
 
-  const monthLabel = new Date(year, month).toLocaleString("default", {
+  const monthLabel = new Date(year, currentMonth).toLocaleString("default", {
     month: "long",
     year: "numeric",
   })
 
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
-  const firstDayOfMonth = new Date(year, month, 1).getDay()
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const firstDayOfMonth = new Date(year, currentMonth, 1).getDay()
+  const daysInMonth = new Date(year, currentMonth + 1, 0).getDate()
 
   const calendarCells: (number | null)[] = []
 
@@ -29,11 +30,38 @@ export default function Calendar({ events }: CalendarProps) {
     calendarCells.push(day)
   }
 
+  const nextMonth = () => {
+    if (currentMonth < 11) setCurrentMonth((prev) => prev + 1)
+  }
+
+  const prevMonth = () => {
+    if (currentMonth > 0) setCurrentMonth((prev) => prev - 1)
+  }
+
   return (
     <div>
-      <h2 className="text-3xl font-bold text-white mb-6">
-        Event Calendar — {monthLabel}
-      </h2>
+      {/* Header with arrows */}
+      <div className="flex items-center justify-between mb-6">
+        <button
+          onClick={prevMonth}
+          disabled={currentMonth === 0}
+          className="text-green-400 text-3xl disabled:opacity-30"
+        >
+          ←
+        </button>
+
+        <h2 className="text-3xl font-bold text-white">
+          Event Calendar — {monthLabel}
+        </h2>
+
+        <button
+          onClick={nextMonth}
+          disabled={currentMonth === 11}
+          className="text-green-400 text-3xl disabled:opacity-30"
+        >
+          →
+        </button>
+      </div>
 
       {/* Weekday labels (desktop only) */}
       <div className="hidden md:grid grid-cols-7 gap-4 mb-2 text-center text-green-400 font-semibold">
@@ -54,7 +82,10 @@ export default function Calendar({ events }: CalendarProps) {
             )
           }
 
-          const dayString = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+          const dayString = `${year}-${String(currentMonth + 1).padStart(
+            2,
+            "0"
+          )}-${String(day).padStart(2, "0")}`
 
           const dayEvents = events.filter(
             (event) => event.date === dayString
