@@ -8,6 +8,9 @@ export default function WaiverViewer() {
   const [emergencyPhone, setEmergencyPhone] = useState("")
   const [parentName, setParentName] = useState("")
   const [parentAccepted, setParentAccepted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // ---- Helpers ----
   function isMinor(dob: string) {
@@ -38,6 +41,9 @@ export default function WaiverViewer() {
 
   // ---- Submit handler ----
  async function submitWaiver() {
+  setError(null)
+  setIsSubmitting(true)
+
   try {
     const res = await fetch("/api/submit-waiver", {
       method: "POST",
@@ -53,24 +59,22 @@ export default function WaiverViewer() {
     })
 
     if (!res.ok) {
-      alert("Waiver submission failed")
-      return
+      throw new Error("Submission failed")
     }
 
-    //RECEIVE PDF (NOT JSON)
+    // Receive and open PDF
     const blob = await res.blob()
     const url = URL.createObjectURL(blob)
-
-    // Open generated PDF
     window.open(url, "_blank")
 
-    alert("Waiver submitted successfully")
+    setIsSubmitted(true)
   } catch (err) {
     console.error(err)
-    alert("Unexpected error submitting waiver")
+    setError("There was an error submitting the waiver.")
+  } finally {
+    setIsSubmitting(false)
   }
 }
-
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -182,17 +186,38 @@ export default function WaiverViewer() {
           </span>
         </label>
 
-        <button
-          disabled={!canSubmit}
+       <button
           onClick={submitWaiver}
-          className={`w-full mt-4 px-6 py-3 rounded font-semibold transition ${
-            canSubmit
-              ? "bg-green-500 hover:bg-green-600 text-black"
-              : "bg-gray-600 cursor-not-allowed"
-          }`}
+          disabled={!canSubmit || isSubmitting || isSubmitted}
+          className={`w-full py-3 rounded-lg font-semibold transition
+            ${
+              isSubmitted
+                ? "bg-green-600 text-white cursor-default"
+                : isSubmitting
+                ? "bg-gray-500 text-white cursor-wait"
+                : canSubmit
+                ? "bg-green-600 hover:bg-green-700 text-white"
+                : "bg-gray-600 text-gray-300 cursor-not-allowed"
+            }`}
         >
-          Submit Waiver
-        </button>
+          {isSubmitted
+            ? "Waiver Submitted ✓"
+            : isSubmitting
+            ? "Submitting…"
+            : "Submit Waiver"}
+          </button>
+          {isSubmitted && (
+            //Confirmation text after submission
+          <p className="mt-3 text-sm text-green-400 text-center">
+            Your waiver has been successfully submitted.
+          </p>
+        )}
+
+        {error && (
+          <p className="mt-3 text-sm text-red-400 text-center">
+            {error}
+          </p>
+        )}
       </section>
     </div>
   )
