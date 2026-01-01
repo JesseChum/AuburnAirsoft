@@ -51,19 +51,14 @@ export default function WaiverViewer() {
     }),
   })
 
-  if (!res.ok) {
-    alert("Submission failed")
-    return
-  }
+  console.log("STATUS:", res.status)
+  console.log("CONTENT-TYPE:", res.headers.get("content-type"))
 
-  const blob = await res.blob()
-  const url = URL.createObjectURL(blob)
-  window.open(url)
+  const text = await res.text()
+  console.log("RESPONSE BODY (first 500 chars):", text.slice(0, 500))
 
-  alert("Waiver submitted successfully")
+  alert("Check console")
 }
-
-
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
