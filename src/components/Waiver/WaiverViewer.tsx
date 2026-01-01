@@ -38,27 +38,39 @@ export default function WaiverViewer() {
 
   // ---- Submit handler ----
  async function submitWaiver() {
-  const res = await fetch("/api/submit-waiver", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name,
-      dob,
-      emergencyName,
-      emergencyPhone,
-      parentName: minor ? parentName : null,
-      minor,
-    }),
-  })
+  try {
+    const res = await fetch("/api/submit-waiver", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        dob,
+        emergencyName,
+        emergencyPhone,
+        parentName: minor ? parentName : null,
+        minor,
+      }),
+    })
 
-  console.log("STATUS:", res.status)
-  console.log("CONTENT-TYPE:", res.headers.get("content-type"))
+    if (!res.ok) {
+      alert("Waiver submission failed")
+      return
+    }
 
-  const text = await res.text()
-  console.log("RESPONSE BODY (first 500 chars):", text.slice(0, 500))
+    //RECEIVE PDF (NOT JSON)
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
 
-  alert("Check console")
+    // Open generated PDF
+    window.open(url, "_blank")
+
+    alert("Waiver submitted successfully")
+  } catch (err) {
+    console.error(err)
+    alert("Unexpected error submitting waiver")
+  }
 }
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">

@@ -8,7 +8,7 @@ export const config = {
   runtime: "nodejs",
 }
 
-// Supabase server client (SERVICE ROLE ONLY)
+// Supabase SERVER client (service role)
 const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -23,8 +23,6 @@ export default async function handler(
     if (req.method !== "POST") {
       return res.status(405).send("POST only")
     }
-
-    console.log("submit-waiver.ts RUNNING")
 
     const {
       name,
@@ -45,11 +43,11 @@ export default async function handler(
     )
 
     if (!fs.existsSync(pdfPath)) {
-      throw new Error("Base PDF not found")
+      throw new Error("Base waiver PDF not found")
     }
 
-    const basePdfBytes = fs.readFileSync(pdfPath)
-    const pdfDoc = await PDFDocument.load(basePdfBytes)
+    const baseBytes = fs.readFileSync(pdfPath)
+    const pdfDoc = await PDFDocument.load(baseBytes)
 
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
     const black = rgb(0, 0, 0)
@@ -71,13 +69,13 @@ export default async function handler(
     })
 
     // ============================
-    // PAGE 3 (SIGNATURE PAGE)
+    // SIGNATURE PAGE (PAGE 3)
     // ============================
     const page = pages[2]
     page.setRotation(degrees(0))
 
     const draw = (text: string, x: number, y: number) => {
-      page.drawText(text, {
+      page.drawText(text ?? "", {
         x,
         y,
         size: 11,
@@ -86,12 +84,10 @@ export default async function handler(
       })
     }
 
-    // ============================
-    // FIELD POSITIONS (ADJUSTABLE)
-    // ============================
-    draw(name, 230, 560) // Participant Name
-    draw(dob, 230, 535) // DOB
-    draw(name, 230, 510) // Signature
+    // === FIELD COORDINATES ===
+    draw(name, 230, 560)
+    draw(dob, 230, 535)
+    draw(name, 230, 510)
     draw(`${emergencyName} - ${emergencyPhone}`, 230, 485)
     draw(new Date().toLocaleDateString(), 230, 460)
 
@@ -102,12 +98,12 @@ export default async function handler(
     }
 
     // ============================
-    // FINALIZE PDF (ONCE)
+    // FINAL PDF BYTES (ONCE)
     // ============================
     const finalPdfBytes = await pdfDoc.save()
 
     // ============================
-    // UPLOAD TO SUPABASE (NO MODS)
+    // UPLOAD TO SUPABASE (STORAGE ONLY)
     // ============================
     const filename = `waiver-${Date.now()}.pdf`
 
@@ -123,7 +119,7 @@ export default async function handler(
     }
 
     // ============================
-    // RETURN SAME PDF TO CLIENT
+    // RETURN PDF TO CLIENT
     // ============================
     res.setHeader("Content-Type", "application/pdf")
     res.setHeader(
