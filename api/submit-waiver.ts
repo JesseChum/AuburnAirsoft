@@ -77,7 +77,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // ---- Coordinates tuned for your screenshot ----
     // If the “top section” is off, tweak Y values by ±3..±10 until perfect.
     const xMain = 230
-    const xEmergency = 300
+    const xEmergency = 290
 
     // TOP SECTION (adjusted)
     draw3(name, xMain, 567)                      // Participant Name
