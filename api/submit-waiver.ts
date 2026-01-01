@@ -8,125 +8,106 @@ export const config = {
   runtime: "nodejs",
 }
 
-// Supabase SERVER client (service role)
 const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
   { auth: { persistSession: false } }
 )
 
-export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse
-) {
+// helper: keep date consistent everywhere
+function formatDateMMDDYYYY(d: Date) {
+  const mm = String(d.getMonth() + 1).padStart(2, "0")
+  const dd = String(d.getDate()).padStart(2, "0")
+  const yyyy = d.getFullYear()
+  return `${mm}/${dd}/${yyyy}`
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    if (req.method !== "POST") {
-      return res.status(405).send("POST only")
-    }
+    if (req.method !== "POST") return res.status(405).send("POST only")
 
     const {
-      name,
-      dob,
-      emergencyName,
-      emergencyPhone,
-      parentName,
-      minor,
-    } = req.body
+      name = "",
+      dob = "",
+      emergencyName = "",
+      emergencyPhone = "",
+      parentName = "",
+      minor = false,
+    } = req.body || {}
 
-    // ============================
-    // LOAD BASE PDF
-    // ============================
-    const pdfPath = path.join(
-      process.cwd(),
-      "public",
-      "AuburnAirsoftWaiver.pdf"
-    )
-
-    if (!fs.existsSync(pdfPath)) {
-      throw new Error("Base waiver PDF not found")
-    }
+    const pdfPath = path.join(process.cwd(), "public", "AuburnAirsoftWaiver.pdf")
+    if (!fs.existsSync(pdfPath)) throw new Error("Base waiver PDF not found")
 
     const baseBytes = fs.readFileSync(pdfPath)
     const pdfDoc = await PDFDocument.load(baseBytes)
 
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
     const black = rgb(0, 0, 0)
-    const red = rgb(1, 0, 0)
 
     const pages = pdfDoc.getPages()
+    const todayStr = formatDateMMDDYYYY(new Date())
 
     // ============================
-    // DEBUG MARKERS (REMOVE LATER)
+    // PAGE 1 (index 0) — "Date:" line at top
     // ============================
-    pages.forEach((p, i) => {
-      p.drawText(`PAGE ${i}`, {
-        x: 20,
-        y: 20,
-        size: 14,
-        font,
-        color: red,
-      })
+    const page1 = pages[0]
+    page1.setRotation(degrees(0))
+
+    // Adjust these if needed by a few px after testing
+    // (x,y) should land on the "Date: ______" line on page 1.
+    page1.drawText(todayStr, {
+      x: 120,
+      y: page1.getHeight() - 132,
+      size: 11,
+      font,
+      color: black,
     })
 
     // ============================
-    // SIGNATURE PAGE (PAGE 3)
+    // PAGE 3 (index 2) — signature page
     // ============================
-    const page = pages[2]
-    page.setRotation(degrees(0))
+    const page3 = pages[2]
+    page3.setRotation(degrees(0))
 
-    const draw = (text: string, x: number, y: number) => {
-      page.drawText(text ?? "", {
-        x,
-        y,
-        size: 11,
-        font,
-        color: black,
-      })
+    // helper for page 3
+    const draw3 = (text: string, x: number, y: number, size = 11) => {
+      page3.drawText(String(text ?? ""), { x, y, size, font, color: black })
     }
 
-    // === FIELD COORDINATES ===
-    draw(name, 230, 560)
-    draw(dob, 230, 535)
-    draw(name, 230, 510)
-    draw(`${emergencyName} - ${emergencyPhone}`, 230, 485)
-    draw(new Date().toLocaleDateString(), 230, 460)
+    // ---- Coordinates tuned for your screenshot ----
+    // If the “top section” is off, tweak Y values by ±3..±10 until perfect.
+    const xMain = 230
 
+    // TOP SECTION (adjusted)
+    draw3(name, xMain, 566)                      // Participant Name
+    draw3(dob, xMain, 542)                       // Date of Birth
+    draw3(name, xMain, 518)                      // Signature (typed name)
+    draw3(`${emergencyName} - ${emergencyPhone}`, xMain, 494) // Emergency contact
+    draw3(todayStr, xMain, 470)                  // Date Signed
+
+    // BOTTOM SECTION (you said this is perfect—kept same)
     if (minor && parentName) {
-      draw(parentName, 230, 330)
-      draw(parentName, 230, 305)
-      draw(new Date().toLocaleDateString(), 230, 280)
+      draw3(parentName, xMain, 330)              // Parent/Guardian Name
+      draw3(parentName, xMain, 305)              // Parent Signature
+      draw3(todayStr, xMain, 280)                // Parent Date Signed
     }
 
     // ============================
-    // FINAL PDF BYTES (ONCE)
+    // SAVE, UPLOAD, RETURN
     // ============================
     const finalPdfBytes = await pdfDoc.save()
 
-    // ============================
-    // UPLOAD TO SUPABASE (STORAGE ONLY)
-    // ============================
     const filename = `waiver-${Date.now()}.pdf`
-
     const { error } = await supabase.storage
       .from("waivers")
       .upload(filename, finalPdfBytes, {
         contentType: "application/pdf",
         upsert: false,
       })
+    if (error) throw new Error("Supabase upload failed: " + error.message)
 
-    if (error) {
-      throw new Error("Supabase upload failed: " + error.message)
-    }
-
-    // ============================
-    // RETURN PDF TO CLIENT
-    // ============================
     res.setHeader("Content-Type", "application/pdf")
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${filename}"`
-    )
-
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`)
     return res.status(200).send(Buffer.from(finalPdfBytes))
   } catch (err) {
     console.error("WAIVER ERROR:", err)
