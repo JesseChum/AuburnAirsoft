@@ -38,36 +38,39 @@ export default function WaiverViewer() {
 
   // ---- Submit handler ----
   async function submitWaiver() {
-    try {
-      const response = await fetch("/api/submit-waiver", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          dob,
-          emergencyName,
-          emergencyPhone,
-          parentName: minor ? parentName : null,
-          signedAt: new Date().toISOString(),
-        }),
-      })
+  try {
+    const response = await fetch("/api/submit-waiver", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        dob,
+        emergencyName,
+        emergencyPhone,
+        parentName: minor ? parentName : null,
+        minor,
+      }),
+    })
 
-      if (!response.ok) {
-        alert("Failed to submit waiver")
-        return
-      }
-
-      const data = await response.json()
-      console.log("Waiver stored as:", data.fileName)
-
-      alert("Waiver submitted successfully")
-    } catch (err) {
-      console.error(err)
-      alert("There was an error submitting the waiver.")
+    if (!response.ok) {
+      alert("Failed to submit waiver")
+      return
     }
+
+    // THIS IS THE KEY CHANGE
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+
+    // Optional: open generated PDF
+    window.open(url)
+
+    alert("Waiver submitted successfully")
+  } catch (err) {
+    console.error(err)
+    alert("There was an error submitting the waiver.")
   }
+}
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
