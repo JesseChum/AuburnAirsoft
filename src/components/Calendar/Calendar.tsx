@@ -42,7 +42,7 @@ export default function Calendar({ events }: CalendarProps) {
 
   return (
     <div>
-      {/* Header with arrows */}
+      {/* ================= HEADER ================= */}
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={prevMonth}
@@ -52,7 +52,7 @@ export default function Calendar({ events }: CalendarProps) {
           ←
         </button>
 
-        <h2 className="text-3xl font-bold text-white">
+        <h2 className="text-3xl font-bold text-white text-center">
           Event Calendar — {monthLabel}
         </h2>
 
@@ -65,21 +65,58 @@ export default function Calendar({ events }: CalendarProps) {
         </button>
       </div>
 
-      {/* Weekday labels (desktop only) */}
+      {/* ================= WEEKDAY LABELS (DESKTOP) ================= */}
       <div className="hidden md:grid grid-cols-7 gap-4 mb-2 text-center text-green-400 font-semibold">
         {weekDays.map((day) => (
           <div key={day}>{day}</div>
         ))}
       </div>
 
-      {/* Calendar grid (ALWAYS 7 columns) */}
-      <div className="grid grid-cols-7 gap-3">
+      {/* ================= MOBILE VIEW ================= */}
+      <div className="md:hidden space-y-4">
+        {calendarCells.map((day) => {
+          if (!day) return null
+
+          const dayString = `${year}-${String(currentMonth + 1).padStart(
+            2,
+            "0"
+          )}-${String(day).padStart(2, "0")}`
+
+          const dayEvents = events.filter(
+            (event) => event.date === dayString
+          )
+
+          return (
+            <div
+              key={dayString}
+              className="border border-green-800 rounded-md p-4"
+            >
+              <p className="text-green-300 font-semibold mb-2">
+                {monthLabel.split(" ")[0]} {day}
+              </p>
+
+              {dayEvents.length === 0 ? (
+                <p className="text-sm text-gray-400">No events</p>
+              ) : (
+                <div className="space-y-2">
+                  {dayEvents.map((event) => (
+                    <CalendarEvent key={event.id} event={event} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* ================= DESKTOP VIEW ================= */}
+      <div className="hidden md:grid grid-cols-7 gap-3">
         {calendarCells.map((day, index) => {
           if (!day) {
             return (
               <div
                 key={`empty-${index}`}
-                className="hidden md:block border border-transparent min-h-[120px]"
+                className="border border-transparent min-h-[120px]"
               />
             )
           }
@@ -96,7 +133,7 @@ export default function Calendar({ events }: CalendarProps) {
           return (
             <div
               key={dayString}
-              className="border border-green-800 rounded-md p-3 md:min-h-[120px]"
+              className="border border-green-800 rounded-md p-3 min-h-[120px]"
             >
               <p className="text-sm font-semibold text-green-300 mb-2">
                 {monthLabel.split(" ")[0]} {day}
