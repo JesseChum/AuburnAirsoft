@@ -22,10 +22,12 @@ export default function Calendar({ events }: CalendarProps) {
 
   const calendarCells: (number | null)[] = []
 
+  // Pad start of month
   for (let i = 0; i < firstDayOfMonth; i++) {
     calendarCells.push(null)
   }
 
+  // Fill days
   for (let day = 1; day <= daysInMonth; day++) {
     calendarCells.push(day)
   }
@@ -70,13 +72,13 @@ export default function Calendar({ events }: CalendarProps) {
         ))}
       </div>
 
-      {/* Calendar grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-3">
+      {/* Calendar grid (ALWAYS 7 columns) */}
+      <div className="grid grid-cols-7 gap-3">
         {calendarCells.map((day, index) => {
           if (!day) {
             return (
               <div
-                key={index}
+                key={`empty-${index}`}
                 className="hidden md:block border border-transparent min-h-[120px]"
               />
             )
@@ -93,7 +95,7 @@ export default function Calendar({ events }: CalendarProps) {
 
           return (
             <div
-              key={day}
+              key={dayString}
               className="border border-green-800 rounded-md p-3 md:min-h-[120px]"
             >
               <p className="text-sm font-semibold text-green-300 mb-2">
