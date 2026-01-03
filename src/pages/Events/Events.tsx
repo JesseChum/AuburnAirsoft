@@ -45,6 +45,7 @@ export default function Events() {
         {/* Upcoming Events */}
         <section className="mb-16">
           <h1 className="text-3xl font-bold mb-6">Upcoming Events</h1>
+          <p>ALL EVENTS ARE PERMANENTLY SHUTDOWN</p>
 
           {loading ? (
             <p>Loading events...</p>
