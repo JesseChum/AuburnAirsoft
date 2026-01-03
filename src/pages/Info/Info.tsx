@@ -1,5 +1,4 @@
-import longstrip from "../../assets/longstrip.png"
-import coyote from "../../assets/coyote.png"
+
 
 export default function Info() {
   return (
@@ -170,22 +169,18 @@ export default function Info() {
        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
          <figure>
       <img
-        src={longstrip}
         alt="More parking"
         className="rounded-lg border border-gray-600"
       />
       <figcaption className="text-sm text-gray-400 mt-2">
-        More parking and walk way for future planned events
       </figcaption>  
     </figure>
      <figure>
       <img
-        src={coyote}
         alt="coyote sighting"
         className="rounded-lg border border-gray-600"
       />
       <figcaption className="text-sm text-gray-400 mt-2">
-        Coyote sighting north of the field
       </figcaption>  
     </figure>
        </div>

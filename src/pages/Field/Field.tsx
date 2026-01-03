@@ -16,7 +16,7 @@ export default function Field() {
         <h2 className="text-xl font-semibold mb-3">Exact Location (Google Maps)</h2>
         <div className="w-full h-[350px] rounded-lg overflow-hidden border border-gray-600">
           <iframe
-            title="AuburnDale Park II Map"
+            title=""
             //src="https://www.google.com/maps?q=30000+118th+Ave+SE,+Auburn,+WA+98092&output=embed"
             width="100%"
             height="100%"
@@ -76,7 +76,6 @@ export default function Field() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
              <figure>
       <img
-        alt="Turn from SE 304th St onto 118th Ave SE"
         className="rounded-lg border border-gray-600"
       />
       <figcaption className="text-sm text-gray-400 mt-2">
@@ -85,7 +84,6 @@ export default function Field() {
     </figure>
     <figure>
       <img
-        alt="Driving down 118th Ave SE"
         className="rounded-lg border border-gray-600"
       />
       <figcaption className="text-sm text-gray-400 mt-2">
@@ -94,7 +92,6 @@ export default function Field() {
     </figure>
      <figure>
       <img
-        alt="Gravel road entrance to parking area"
         className="rounded-lg border border-gray-600"
       />
       <figcaption className="text-sm text-gray-400 mt-2">
@@ -103,7 +100,6 @@ export default function Field() {
     </figure>
        <figure>
       <img
-        alt="Parking and turnaround area"
         className="rounded-lg border border-gray-600"
       />
       <figcaption className="text-sm text-gray-400 mt-2">
