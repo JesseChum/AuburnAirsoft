@@ -102,21 +102,21 @@ export default function EventCard({ event }: Props) {
       setGuests(0)
   }
 
-  const updateGuests = async (newGuests: number) => {
-    const diff = newGuests - guests
+  // const updateGuests = async (newGuests: number) => {
+  //   const diff = newGuests - guests
 
-    const { error } = await supabase
-      .from("rsvps")
-      .update({ guests: 1 + newGuests })
-      .eq("event_id", event.id)
-      .eq("user_id", userId)
+  //   const { error } = await supabase
+  //     .from("rsvps")
+  //     .update({ guests: 1 + newGuests })
+  //     .eq("event_id", event.id)
+  //     .eq("user_id", userId)
 
-    if (error) return 
-    setGuests(newGuests)
-    setHeadcount((prev) => prev + diff)
+  //   if (error) return 
+  //   setGuests(newGuests)
+  //   setHeadcount((prev) => prev + diff)
 
-    await loadData()
-  }
+  //   await loadData()
+  // }
 
   // ----------------------------
   // UI
